@@ -368,17 +368,17 @@ under the License.
                         <div class="tier-option selected" data-tier="0" onclick="selectTier(0)">
                             <div class="tier-name">🐌 Standard</div>
                             <div class="tier-price">0.001 ETH</div>
-                            <div class="tier-delay">~60s delay</div>
+                            <div class="tier-delay">2 epochs (~13 min)</div>
                         </div>
                         <div class="tier-option" data-tier="1" onclick="selectTier(1)">
                             <div class="tier-name">⚡ Express</div>
                             <div class="tier-price">0.002 ETH</div>
-                            <div class="tier-delay">~15s delay</div>
+                            <div class="tier-delay">1 epoch (~6.4 min)</div>
                         </div>
                         <div class="tier-option" data-tier="2" onclick="selectTier(2)">
                             <div class="tier-name">🚀 Priority</div>
                             <div class="tier-price">0.01 ETH</div>
-                            <div class="tier-delay">~5s delay</div>
+                            <div class="tier-delay">Current epoch (immediate)</div>
                         </div>
                     </div>
                 </div>
@@ -412,7 +412,12 @@ under the License.
                     1. MetaMask signs your transaction to the ValidatorPayment contract<br>
                     2. Validators receive payment and listen for the ProposalPaid event<br>
                     3. Content is replicated to all Oak validators via Aeron consensus<br>
-                    4. Your content appears on the global /oak-chain mount
+                    4. Your content appears on the global /oak-chain mount<br><br>
+                    <strong>⏱️ Epoch-based timing:</strong><br>
+                    • 1 Ethereum epoch = 32 slots × 12 seconds = 384 seconds (~6.4 minutes)<br>
+                    • Standard tier: Wait for finalization (2 epochs for security)<br>
+                    • Express tier: Next epoch (faster, less confirmations)<br>
+                    • Priority tier: Current epoch (immediate inclusion)
                 </div>
             </form>
         </div>

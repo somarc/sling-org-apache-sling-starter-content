@@ -77,9 +77,25 @@ Each publish transaction records all three addresses:
   "expectedPath": "/oak-chain/content/0x742d.../my-page",
   "tier": "Priority",
   "amount": "0.01 ETH",
-  "timestamp": 1732233600
+  "timestamp": 1732233600,
+  "epochDelay": "Current epoch (immediate)"
 }
 ```
+
+## Publishing Tiers (Epoch-Based)
+
+The publishing tiers use **Ethereum Beacon Chain epochs** for timing:
+
+| Tier | Cost | Delay | Epochs | Description |
+|------|------|-------|--------|-------------|
+| **Standard** | 0.001 ETH | ~13 min | 2 epochs | Wait for finalization (most secure) |
+| **Express** | 0.002 ETH | ~6.4 min | 1 epoch | Next epoch (faster) |
+| **Priority** | 0.01 ETH | Immediate | Current | Immediate inclusion |
+
+**Ethereum Epoch Timing:**
+- 1 Epoch = 32 slots × 12 seconds = 384 seconds (~6.4 minutes)
+- Finalization = 2 epochs (~12.8 minutes)
+- This aligns with Ethereum's consensus mechanism for transaction finality
 
 ## Benefits
 
