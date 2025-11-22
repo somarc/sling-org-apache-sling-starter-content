@@ -22,83 +22,332 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Welcome to the Apache Sling Starter</title>
-        <meta name="Description" content="Apache Sling default homepage">
-        <meta name="theme-color" content="#00678c">
-        <link href="../content/starter/css/bundle.css" rel="stylesheet">
+        <title>Blockchain AEM - POC Demo</title>
+        <meta name="Description" content="Blockchain AEM Proof of Concept">
+        <meta name="theme-color" content="#667eea">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 40px 20px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .header {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 16px;
+                padding: 50px;
+                margin-bottom: 40px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 3.5rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 15px;
+                line-height: 1.2;
+            }
+
+            .tagline {
+                font-size: 1.3rem;
+                color: #666;
+                margin-bottom: 10px;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                color: #888;
+                font-style: italic;
+            }
+
+            .card-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+
+            .card {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 12px;
+                padding: 35px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                transition: transform 0.3s, box-shadow 0.3s;
+                border-left: 5px solid #667eea;
+            }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            }
+
+            .card h2 {
+                font-size: 1.8rem;
+                color: #333;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .card-icon {
+                font-size: 2rem;
+            }
+
+            .card p {
+                color: #666;
+                line-height: 1.6;
+                margin-bottom: 20px;
+                font-size: 1.05rem;
+            }
+
+            .card-links {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                display: inline-block;
+                padding: 14px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: all 0.3s;
+                text-align: center;
+                font-size: 1rem;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-primary:hover {
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                background: linear-gradient(135deg, #f6851b 0%, #e2761b 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(246, 133, 27, 0.4);
+            }
+
+            .btn-secondary:hover {
+                box-shadow: 0 6px 20px rgba(246, 133, 27, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .btn-tertiary {
+                background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+            }
+
+            .btn-tertiary:hover {
+                box-shadow: 0 6px 20px rgba(72, 187, 120, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .system-card {
+                grid-column: 1 / -1;
+                border-left-color: #48bb78;
+            }
+
+            .system-links {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .footer {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 30px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                color: #666;
+            }
+
+            .footer a {
+                color: #667eea;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .footer a:hover {
+                text-decoration: underline;
+            }
+
+            .badge {
+                display: inline-block;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-left: 10px;
+            }
+
+            .badge-poc {
+                background: #fed7d7;
+                color: #c53030;
+            }
+
+            .badge-new {
+                background: #c6f6d5;
+                color: #22543d;
+            }
+
+            @media (max-width: 768px) {
+                h1 {
+                    font-size: 2.5rem;
+                }
+                
+                .header {
+                    padding: 30px;
+                }
+
+                .card-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .system-links {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
     </head>
     <body>
-        <div class="Grid Fit-Medium Home-Grid">
-            <div class="Gradient"></div>
-            <header class="Cell Medium-35 Large-25 Align-Center Logos">
-                <a href="http://sling.apache.org" target="_blank" rel="noopener" id="sling-logo" title="Visit the Apache Sling website">
-                    <img src="../content/starter/img/sling-logo.svg" alt="Apache Sling Logo"/>
-                </a>
-                <a href="http://apache.org" target="_blank" rel="noopener" id="asf-logo" title="Visit the Apache Software Foundation website">
-                    <img src="../content/starter/img/asf-logo.svg" alt="Apache Software Foundation Logo"/>
-                </a>
-            </header>
-            <div class="Cell Align-Center Main-Content">
-                <div class="Grid">
-                    <section class="Cell Large-50">
-                        <h1>Welcome</h1>
-                        <p>Apache Sling is a web framework that uses a Java Content Repository, such as <a href="http://jackrabbit.apache.org/jcr/index.html" target="_blank" rel="noopener" title="Visit the Apache Jackrabbit website">Apache Jackrabbit</a>,
-                           to store and manage content. Sling applications use either scripts or Java servlets, selected 
-                           based on simple name conventions, to process HTTP requests in a RESTful way. The embedded 
-                           <a href="http://felix.apache.org/" target="_blank" rel="noopener" title="Visit the Apache Felix website">Apache Felix</a> OSGi framework and console provide a dynamic runtime environment, where code and
-                           content bundles can be loaded, unloaded and reconfigured at runtime.</p>
-                        <p>The Sling Starter is a ready-to-run Sling configuration, providing an embedded JCR content 
-                           repository and web server, a selection of Sling components, documentation and examples. 
-                           The Starter makes it easy to get started with Sling and to develop script-based applications.</p>
-                        <h1>Getting Started</h1>
-                        <p>To get started with Sling, see our <a href="http://sling.apache.org/" target="_blank" rel="noopener" title="Visit the Apache Sling website">website</a>, the <a href="../content/slingshot.html" title="Try the Slingshot sample application">Slingshot sample application</a>
-                           or the <a href="http://sling.apache.org/site/discover-sling-in-15-minutes.html" target="_blank" rel="noopener">Sling in 15 minutes</a> tutorial.</p>
-                        <p>You can mount the repository via WebDAV to explore or modify content, simply use the root URL 
-                           as the WebDAV server URL.</p>
-                    </section>
-                    <div class="Cell Large-15"><!--/* Give the columns a bit of space between them. */--></div>
-                    <section class="Cell Large-35">
-                        <h1>Session</h1>
-                        <h2 id="login-unknown"><a href="../system/sling/login.html" title="Login to Apache Sling">Login</a></h2>
-                        <h2 id="login-signedout"><a href="../system/sling/login.html" title="Login to Apache Sling">Login</a> (admin:admin)</h2>
-                        <h2 id="login-signedin"><a href="../system/sling/logout" title="Logout of Apache Sling">Logout</a> <span id="user"></span></h2>
-                        <h1>Resources</h1>
-                        <h2>This Site</h2>
-                        <ul>
-                            <li><a href="../bin/browser.html" title="Browse the JCR content of this site">Browse Content</a></li>
-                            <li><a href="../htl/repl.html" title="Edit HTL scripts using a Read-Eval-Print Loop">HTL scripts REPL</a></li>
-                            <li><a href="../system/console/bundles" title="Edit the OSGi bundles of this site">System Console</a></li>
-                            <li><a href="../system/console/configMgr" title="Edit the OSGi configurations of this site">System Configuration</a></li>
-                        </ul>
-                        <h2>Reference</h2>
-                        <ul>
-                            <li><a href="http://sling.apache.org/apidocs/latest/" target="_blank" rel="noopener" title="Visit the Apache Sling Javadocs">API Documentation</a></li>
-                            <li><a href="http://sling.apache.org/project-information.html#mailing-lists" rel="noopener" target="_blank" title="View available Apache Sling mailing lists">Mailing Lists</a></li>
-                            <li><a href="http://sling.apache.org/documentation/tutorials-how-tos.html" rel="noopener" target="_blank" title="View Apache Sling Developer Tutorials">Tutorials</a></li>
-                            <li><a href="https://github.com/apache/sling-aggregator" target="_blank" rel="noopener" title="View the Sling Aggregator on Github">All Sling repos</a></li>
-                            <li><a href="https://github.com/apache/sling-samples" target="_blank" rel="noopener" title="View Apache Sling sample applications on Github">Sample Applications</a></li>
-                        </ul>
-                        <% sling.include("/content/starter/sidebar-extensions"); %>
-                    </section>
+        <div class="container">
+            <div class="header">
+                <h1>⛓️ Blockchain AEM</h1>
+                <p class="tagline">Decentralized Content Repository POC</p>
+                <p class="subtitle">Oak + Aeron Consensus + Ethereum Smart Contracts</p>
+                <span class="badge badge-poc">GARAGE WEEK 2025</span>
+            </div>
+
+            <div class="card-grid">
+                <!-- MetaMask Publishing -->
+                <div class="card">
+                    <h2>
+                        <span class="card-icon">🦊</span>
+                        MetaMask Publishing
+                        <span class="badge badge-new">NEW</span>
+                    </h2>
+                    <p>
+                        Pay validators with cryptocurrency (ETH/USDC) via MetaMask. 
+                        Choose Standard ($3.25), Express ($6.50), or Priority ($32.50) tiers 
+                        for instant decentralized content publishing.
+                    </p>
+                    <div class="card-links">
+                        <a href="../content/blockchain-aem/oak-chain-publish.html" class="btn btn-secondary">
+                            💰 Pay & Publish to Oak Chain
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Blockchain Browser -->
+                <div class="card">
+                    <h2>
+                        <span class="card-icon">🔍</span>
+                        Blockchain Browser
+                    </h2>
+                    <p>
+                        Explore the global oak-chain content via HTTP Segment Transfer. 
+                        View genesis content, validator status, and decentralized content 
+                        replicated across multiple validators.
+                    </p>
+                    <div class="card-links">
+                        <a href="../content/blockchain-aem/blockchain.html" class="btn btn-primary">
+                            🌐 Browse Global Chain
+                        </a>
+                        <a href="../bin/browser.html" class="btn btn-tertiary">
+                            🗂️ Composum Browser
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Agentic Chat -->
+                <div class="card">
+                    <h2>
+                        <span class="card-icon">🤖</span>
+                        Agentic Chat
+                    </h2>
+                    <p>
+                        Chat with AI assistants that understand Oak validators, consensus 
+                        mechanics, and blockchain economics. Get real-time insights into 
+                        validator state and proposal queues.
+                    </p>
+                    <div class="card-links">
+                        <a href="../content/blockchain-aem/agentic-chat.html" class="btn btn-primary">
+                            💬 Chat with Oak Validators
+                        </a>
+                    </div>
+                </div>
+
+                <!-- System Administration -->
+                <div class="card system-card">
+                    <h2>
+                        <span class="card-icon">⚙️</span>
+                        System Administration
+                    </h2>
+                    <p>
+                        Access Sling system tools, OSGi console, JCR browser, and configuration 
+                        management. Admin credentials: <code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px;">admin/admin</code>
+                    </p>
+                    <div class="system-links">
+                        <a href="../system/console" class="btn btn-tertiary">
+                            🎛️ OSGi Console
+                        </a>
+                        <a href="../bin/browser.html" class="btn btn-tertiary">
+                            📂 JCR Browser
+                        </a>
+                        <a href="../system/console/configMgr" class="btn btn-tertiary">
+                            🔧 Configuration
+                        </a>
+                        <a href="../system/console/bundles" class="btn btn-tertiary">
+                            📦 Bundles
+                        </a>
+                    </div>
                 </div>
             </div>
+
+            <div class="footer">
+                <p>
+                    <strong>Blockchain AEM POC</strong> - Built on Apache Sling + Jackrabbit Oak 1.89-SNAPSHOT
+                </p>
+                <p style="margin-top: 10px;">
+                    <a href="https://github.com/apache/jackrabbit-oak" target="_blank">Oak Repository</a> • 
+                    <a href="https://sling.apache.org" target="_blank">Apache Sling</a> • 
+                    <a href="../content/blockchain-aem/blockchain.html">POC Documentation</a>
+                </p>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">
+                    ⚡ Powered by Aeron Consensus • HTTP Segment Transfer • Ethereum Smart Contracts
+                </p>
+            </div>
         </div>
+
         <script src="../system/sling.js" type="application/javascript"></script>
         <script type="application/javascript">
+            // Session info for admin display (optional)
             Sling.getSessionInfoAsync( function(info) {
-                var unknown = document.querySelector('#login-unknown');
-                var login = document.querySelector('#login-signedout');
-                var logout = document.querySelector('#login-signedin');
-                if (info && info.userID !== 'anonymous') {
-                    var user = document.querySelector('#user');
-                    user.innerHTML = info.userID;
-                    login.style.display = 'none';
-                    logout.style.display = 'block';
-                } else {
-                    login.style.display = 'block';
-                    logout.style.display = 'none';
-                }
-                unknown.style.display = 'none';
+                console.log('Logged in as:', info ? info.userID : 'anonymous');
             });
         </script>
         <!-- Do not remove this comment, used for Starter integration tests -->
