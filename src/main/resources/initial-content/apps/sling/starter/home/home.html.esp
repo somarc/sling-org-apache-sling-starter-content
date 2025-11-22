@@ -22,8 +22,8 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Blockchain AEM - POC Demo</title>
-        <meta name="Description" content="Blockchain AEM Proof of Concept">
+        <title>AEM Author Client - Blockchain AEM Stack</title>
+        <meta name="Description" content="AEM Author Client connected to Blockchain AEM Global Store with Oak Chain consensus">
         <meta name="theme-color" content="#667eea">
         <style>
             * {
@@ -195,6 +195,84 @@
                 text-decoration: underline;
             }
 
+            .login-section {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .login-section h2 {
+                color: #2d3748;
+                margin-bottom: 20px;
+                font-size: 24px;
+            }
+
+            .login-form {
+                display: grid;
+                gap: 15px;
+                max-width: 400px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .form-group label {
+                color: #4a5568;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .form-group input {
+                padding: 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+                transition: border-color 0.3s;
+            }
+
+            .form-group input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+
+            .login-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .login-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .login-info {
+                background: #f7fafc;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 4px solid #667eea;
+                color: #4a5568;
+                font-size: 14px;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #2d3748;
+                font-weight: 600;
+            }
+
             .badge {
                 display: inline-block;
                 padding: 6px 12px;
@@ -236,10 +314,37 @@
     <body>
         <div class="container">
             <div class="header">
-                <h1>⛓️ Blockchain AEM</h1>
-                <p class="tagline">Decentralized Content Repository POC</p>
-                <p class="subtitle">Oak + Aeron Consensus + Ethereum Smart Contracts</p>
+                <h1>⛓️ AEM Author Client</h1>
+                <p class="tagline">Connected to Blockchain AEM Global Store</p>
+                <p class="subtitle">Multi-peer AEM Architecture • Oak Chain Consensus • Ethereum Smart Contracts</p>
                 <span class="badge badge-poc">GARAGE WEEK 2025</span>
+            </div>
+
+            <!-- Login Section -->
+            <div class="login-section" id="loginSection">
+                <h2>🔐 Authentication Required</h2>
+                <form class="login-form" method="POST" action="${request.contextPath}/j_security_check" enctype="multipart/form-data" accept-charset="UTF-8">
+                    <input type="hidden" name="_charset_" value="UTF-8" />
+                    <input type="hidden" name="resource" value="${request.requestURI}" />
+                    
+                    <div class="login-info">
+                        ℹ️ Default credentials: <strong>admin</strong> / <strong>admin</strong>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="j_username">Username</label>
+                        <input id="j_username" name="j_username" type="text" placeholder="admin" required autofocus />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="j_password">Password</label>
+                        <input id="j_password" name="j_password" type="password" placeholder="admin" required />
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        🚀 Login to AEM Client
+                    </button>
+                </form>
             </div>
 
             <div class="card-grid">
@@ -330,7 +435,7 @@
 
             <div class="footer">
                 <p>
-                    <strong>Blockchain AEM POC</strong> - Built on Apache Sling + Jackrabbit Oak 1.89-SNAPSHOT
+                    <strong>Blockchain AEM Author Client</strong> - Built on Apache Sling + Jackrabbit Oak 1.89-SNAPSHOT
                 </p>
                 <p style="margin-top: 10px;">
                     <a href="https://github.com/apache/jackrabbit-oak" target="_blank">Oak Repository</a> • 
@@ -345,9 +450,30 @@
 
         <script src="../system/sling.js" type="application/javascript"></script>
         <script type="application/javascript">
-            // Session info for admin display (optional)
+            // Check authentication status and update UI
             Sling.getSessionInfoAsync( function(info) {
-                console.log('Logged in as:', info ? info.userID : 'anonymous');
+                const loginSection = document.getElementById('loginSection');
+                const userID = info ? info.userID : null;
+                
+                console.log('Logged in as:', userID || 'anonymous');
+                
+                if (userID && userID !== 'anonymous') {
+                    // User is authenticated - hide login form and show user info
+                    loginSection.innerHTML = `
+                        <div class="user-info">
+                            <span style="font-size: 24px;">👤</span>
+                            <div>
+                                <strong>Logged in as: ${userID}</strong>
+                                <p style="margin: 5px 0 0; font-size: 14px; font-weight: normal; color: #718096;">
+                                    You have full access to all AEM client features
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    loginSection.style.background = 'rgba(72, 187, 120, 0.1)';
+                    loginSection.style.borderLeft = '4px solid #48bb78';
+                }
+                // If not authenticated, login form is already visible
             });
         </script>
         <!-- Do not remove this comment, used for Starter integration tests -->
