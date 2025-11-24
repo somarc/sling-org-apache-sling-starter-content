@@ -443,6 +443,169 @@ under the License.
             padding: 0;
             color: inherit;
         }
+
+        /* 🔥 WOW: Enhanced Markdown Rendering Styles */
+        .message-bubble h1, .message-bubble h2, .message-bubble h3, .message-bubble h4 {
+            color: #2d3748;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .message-bubble h1 {
+            font-size: 1.5em;
+            border-bottom: 2px solid #48bb78;
+            padding-bottom: 8px;
+        }
+
+        .message-bubble h2 {
+            font-size: 1.3em;
+            color: #48bb78;
+        }
+
+        .message-bubble h3 {
+            font-size: 1.1em;
+            color: #667eea;
+        }
+
+        .message-bubble ul, .message-bubble ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        .message-bubble li {
+            margin: 6px 0;
+            line-height: 1.6;
+        }
+
+        .message-bubble blockquote {
+            border-left: 4px solid #48bb78;
+            background: rgba(72, 187, 120, 0.1);
+            padding: 12px 16px;
+            margin: 12px 0;
+            font-style: italic;
+            color: #2d3748;
+        }
+
+        .message-bubble table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 12px 0;
+            font-size: 0.9em;
+        }
+
+        .message-bubble th, .message-bubble td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .message-bubble th {
+            background: #48bb78;
+            color: white;
+            font-weight: 600;
+        }
+
+        .message-bubble tr:nth-child(even) {
+            background: rgba(72, 187, 120, 0.05);
+        }
+
+        .message-bubble a {
+            color: #667eea;
+            text-decoration: none;
+            border-bottom: 1px solid #667eea;
+            transition: all 0.2s;
+        }
+
+        .message-bubble a:hover {
+            color: #764ba2;
+            border-bottom-color: #764ba2;
+        }
+
+        .message-bubble strong {
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .message-bubble em {
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        /* 🔥 WOW: Code block with copy button */
+        .code-block-wrapper {
+            position: relative;
+            margin: 12px 0;
+        }
+
+        .copy-code-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0;
+        }
+
+        .code-block-wrapper:hover .copy-code-button {
+            opacity: 1;
+        }
+
+        .copy-code-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .copy-code-button.copied {
+            background: #48bb78;
+            border-color: #48bb78;
+        }
+
+        /* 🔥 WOW: Smooth message animations */
+        @keyframes slideInMessage {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: slideInMessage 0.3s ease-out;
+        }
+
+        /* 🔥 WOW: Syntax highlighting for code (inline styles) */
+        .message-bubble pre code .keyword {
+            color: #c678dd;
+            font-weight: 600;
+        }
+
+        .message-bubble pre code .string {
+            color: #98c379;
+        }
+
+        .message-bubble pre code .comment {
+            color: #5c6370;
+            font-style: italic;
+        }
+
+        .message-bubble pre code .number {
+            color: #d19a66;
+        }
+
+        .message-bubble pre code .function {
+            color: #61afef;
+        }
     </style>
 </head>
 <body>
@@ -452,7 +615,7 @@ under the License.
                 🤖 Agentic Chat
                 <span class="status-badge" id="statusBadge">Checking...</span>
             </h1>
-            <p class="tagline">AI-powered troubleshooting assistant for Oak and Sling</p>
+            <p class="tagline">🔥 AI-Native Oak & Sling • RAG-Indexed Codebase • Real-Time Log Analysis • Agentic Architecture</p>
             <div class="mode-toggle-container">
                 <span class="mode-toggle-label">Chat Mode:</span>
                 <label class="mode-toggle">
@@ -466,9 +629,17 @@ under the License.
         <div class="chat-container">
             <div class="chat-messages" id="chatMessages">
                 <div class="welcome-message" id="welcomeMessage">
-                    <h2>👋 Welcome to Agentic Chat</h2>
-                    <p id="welcomeDescription">Ask me anything about Oak internals, Sling state, validator connectivity, or log analysis.</p>
-                    <p>I have access to RAG-indexed code and can read logs to help troubleshoot issues.</p>
+                    <h2>🚀 Welcome to AI-Native Oak</h2>
+                    <p id="welcomeDescription"><strong>First-of-its-kind:</strong> JCR with embedded AI agents for real-time troubleshooting, code exploration, and system insights.</p>
+                    <p><strong>Capabilities:</strong></p>
+                    <ul style="text-align: left; display: inline-block; margin: 12px 0;">
+                        <li>🧠 <strong>RAG-Indexed Codebase</strong> - Semantic search across Oak/Sling source</li>
+                        <li>📊 <strong>Live Log Analysis</strong> - Real-time error detection and diagnosis</li>
+                        <li>🔗 <strong>Validator Connectivity</strong> - Network topology and consensus monitoring</li>
+                        <li>🤝 <strong>Agent-to-Agent Mode</strong> - Multi-agent collaboration for complex debugging</li>
+                        <li>⚡ <strong>Instant Answers</strong> - Powered by local Ollama LLM (no cloud dependency)</li>
+                    </ul>
+                    <p style="margin-top: 16px; color: #667eea; font-weight: 600;">Ask me anything about your blockchain AEM infrastructure!</p>
                     <p id="agentModeHint" style="display: none; color: #764ba2; font-weight: 600; margin-top: 12px;">
                         🤖 Agent-to-Agent Mode: Your agent will communicate with validator agents for collaborative troubleshooting.
                     </p>
@@ -501,7 +672,35 @@ under the License.
         </div>
     </div>
 
+    <!-- 🔥 WOW: Marked.js for markdown + Highlight.js for syntax highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.0.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/xml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/json.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/languages/bash.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/atom-one-dark.min.css">
+    
     <script>
+        // 🔥 WOW: Configure marked.js with syntax highlighting
+        marked.setOptions({
+            breaks: true,
+            gfm: true,
+            headerIds: false,
+            mangle: false,
+            highlight: function(code, lang) {
+                if (lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (err) {
+                        console.error('Syntax highlighting error:', err);
+                    }
+                }
+                return hljs.highlightAuto(code).value;
+            }
+        });
+        
         const chatMessages = document.getElementById('chatMessages');
         const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
@@ -770,20 +969,71 @@ under the License.
         }
 
         function formatMessage(text) {
-            // Escape HTML first
-            let formatted = escapeHtml(text);
+            try {
+                // 🔥 WOW: Use marked.js for full markdown rendering with syntax highlighting!
+                let html = marked.parse(text);
+                
+                // 🔥 WOW: Add copy buttons to code blocks
+                html = addCopyButtonsToCodeBlocks(html);
+                
+                return html;
+            } catch (e) {
+                console.error('Markdown parsing error:', e);
+                // Fallback to basic formatting if marked.js fails
+                return basicFormatMessage(text);
+            }
+        }
+        
+        function addCopyButtonsToCodeBlocks(html) {
+            // Wrap code blocks with copy button
+            return html.replace(/<pre><code([^>]*)>([\s\S]*?)<\/code><\/pre>/g, function(match, attrs, code) {
+                const codeId = 'code-' + Math.random().toString(36).substr(2, 9);
+                return `
+                    <div class="code-block-wrapper">
+                        <button class="copy-code-button" onclick="copyCode('${codeId}')">
+                            📋 Copy
+                        </button>
+                        <pre><code${attrs} id="${codeId}">${code}</code></pre>
+                    </div>
+                `;
+            });
+        }
+        
+        function copyCode(codeId) {
+            const codeElement = document.getElementById(codeId);
+            if (!codeElement) return;
             
-            // Convert code blocks (```language\ncode\n```)
+            // Get text content (strips HTML)
+            const code = codeElement.textContent;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(code).then(() => {
+                // Find the button
+                const wrapper = codeElement.closest('.code-block-wrapper');
+                const button = wrapper.querySelector('.copy-code-button');
+                
+                // Visual feedback
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy code:', err);
+            });
+        }
+        
+        function basicFormatMessage(text) {
+            // Fallback: basic formatting without marked.js
+            let formatted = escapeHtml(text);
             formatted = formatted.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
                 return `<pre><code>${code.trim()}</code></pre>`;
             });
-            
-            // Convert inline code (`code`)
             formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
-            
-            // Convert line breaks
             formatted = formatted.replace(/\n/g, '<br>');
-            
             return formatted;
         }
 

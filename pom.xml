@@ -70,6 +70,14 @@
             <version>2.1.1</version>
             <scope>provided</scope>
         </dependency>
+
+        <!-- JSON for SSE event formatting -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>javax.jcr</groupId>
             <artifactId>jcr</artifactId>
@@ -127,6 +135,16 @@
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.jcr.jackrabbit.accessmanager</artifactId>
             <version>5.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- SSE (Server-Sent Events) for Real-Time Updates - Pure HTTP, Zero Dependencies! 🔥 -->
+
+        <!-- OSGi Event Admin for JCR observation -->
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.event</artifactId>
+            <version>1.4.1</version>
             <scope>provided</scope>
         </dependency>
 
