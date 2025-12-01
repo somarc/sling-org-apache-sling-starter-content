@@ -1,6 +1,10 @@
-# Sling-Initial-Content with overwrite for /apps (scripts/components always update)
-# This ensures code changes take effect on restart without needing to clear cache
-Sling-Initial-Content: initial-content;overwrite:=true;path:=/;uninstall:=true
+# Sling-Initial-Content with separate paths for apps (overwrite) and content (merge)
+# - /apps: Scripts/components should always be updated on restart
+# - /content: Content nodes should be created if missing, not overwritten
+# Note: ROOT.json is not loaded (cannot load at root level) - /content/starter.json provides starter page
+Sling-Initial-Content: \
+    initial-content/apps;overwrite:=true;path:=/apps;uninstall:=true, \
+    initial-content/content;path:=/content;uninstall:=true
 
 -includeresource: target/frontend/dist
 
