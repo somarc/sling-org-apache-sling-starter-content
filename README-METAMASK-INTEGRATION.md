@@ -145,12 +145,42 @@ mvn clean package -DskipTests
 
 ## Testing (POC Mode)
 
-### MetaMask Setup (Sepolia Testnet)
+### Mock Mode (Recommended for Initial Testing)
 
-1. Install MetaMask extension
-2. Create/import wallet
-3. Switch to Sepolia testnet
-4. Get free test ETH: https://sepoliafaucet.com/
+**NEW**: The UI now supports mock mode for testing without a deployed contract or test ETH!
+
+To enable mock mode, edit `oak-chain-publish.html`:
+
+```javascript
+// Line ~432
+const MOCK_MODE = true;  // Set to true for simulation mode
+```
+
+**Mock Mode Features:**
+- ✅ Simulates blockchain transactions without real ETH
+- ✅ Works without MetaMask installed (uses simulated wallet)
+- ✅ Generates realistic transaction hashes
+- ✅ Full UI flow preserved (form submission → servlet call)
+- ✅ Perfect for Garage Week demos and POC testing
+- ✅ Shows cost estimates without actual payment
+
+**Mock Mode Flow:**
+1. Open `oak-chain-publish.html`
+2. Click "Connect MetaMask" (uses simulated wallet if MetaMask not installed)
+3. Fill content form
+4. Click "Pay with MetaMask & Publish"
+5. Transaction simulated (1-2s delay for realism)
+6. Content submitted to Oak servlet with mock transaction hash
+
+### MetaMask Setup (Sepolia Testnet - Production Testing)
+
+For testing with real blockchain transactions:
+
+1. Set `MOCK_MODE = false` in `oak-chain-publish.html`
+2. Install MetaMask extension
+3. Create/import wallet
+4. Switch to Sepolia testnet
+5. Get free test ETH: https://sepoliafaucet.com/
 
 ### Test Flow
 
@@ -241,12 +271,36 @@ if (!validPayment) {
 - [ ] Document emergency pause procedures
 - [ ] Establish validator fee withdrawal schedule
 
+## Mock Mode vs. Production Mode
+
+### Mock Mode (MOCK_MODE = true)
+**Use for:** Garage Week demos, POC testing, development without test ETH
+
+| Feature | Mock Mode | Production Mode |
+|---------|-----------|-----------------|
+| Requires MetaMask | ❌ No (simulated wallet) | ✅ Yes |
+| Requires test ETH | ❌ No | ✅ Yes |
+| Blockchain transaction | 🧪 Simulated | ✅ Real |
+| Transaction hash | 🧪 Generated locally | ✅ From blockchain |
+| Servlet submission | ✅ Yes | ✅ Yes |
+| Demo-ready | ✅ Instant | ⏱️ ~15s per tx |
+| Cost | 🆓 Free | 💰 Testnet ETH |
+
+### Production Mode (MOCK_MODE = false)
+**Use for:** Pre-launch testing, mainnet deployment prep, full E2E testing
+
+**Requirements:**
+- Deployed smart contract address
+- MetaMask with test ETH
+- Network connectivity to Sepolia/mainnet
+
 ## Known Limitations (POC)
 
-1. **No actual blockchain verification**: Servlet logs proposal but doesn't verify payment
-2. **No write proposal submission**: Content not actually written to validators
-3. **Mock contract address**: Needs real Sepolia/mainnet deployment
-4. **No event listener**: Validators don't actually listen for ProposalPaid events
+1. **No actual blockchain verification**: Servlet logs proposal but doesn't verify payment (both modes)
+2. **No write proposal submission**: Content not actually written to validators (both modes)
+3. **Mock contract address**: Needs real Sepolia/mainnet deployment (production mode)
+4. **No event listener**: Validators don't actually listen for ProposalPaid events (both modes)
+5. **Mock mode transactions**: Not recorded on-chain, only for UI/UX testing (mock mode)
 
 ## Future Enhancements
 

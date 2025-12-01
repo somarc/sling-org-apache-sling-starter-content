@@ -1,0 +1,511 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ============================================================================
+   Blockchain AEM - Unified Editor Styles
+   Modern, AEM Content Fragments-inspired UI
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-primary: #1473E6;
+    --color-primary-hover: #0D66D0;
+    --color-secondary: #6E6E6E;
+    --color-success: #2D9D78;
+    --color-warning: #E68619;
+    --color-error: #D7373F;
+    --color-info: #1473E6;
+    
+    --color-bg: #F5F5F5;
+    --color-surface: #FFFFFF;
+    --color-border: #E1E1E1;
+    --color-text: #2C2C2C;
+    --color-text-light: #6E6E6E;
+    
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    
+    --border-radius: 4px;
+    --transition: 0.2s ease;
+}
+
+body {
+    font-family: 'adobe-clean', 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+.editor-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+
+.editor-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-md) var(--spacing-xl);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.editor-header-home {
+    display: flex;
+    align-items: center;
+}
+
+.editor-homeAnchor {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-homeAnchor-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.editor-homeAnchor-sublabel {
+    font-size: 12px;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wallet-status {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-bg);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.wallet-status:hover {
+    background: var(--color-border);
+}
+
+.wallet-icon {
+    font-size: 20px;
+}
+
+#wallet-address {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ============================================================================
+   Content Area
+   ============================================================================ */
+
+.editor-content {
+    flex: 1;
+    padding: var(--spacing-xl);
+}
+
+.editor-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.editor-breadcrumbs {
+    font-size: 13px;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.editor-breadcrumbs a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.editor-breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    color: var(--color-text-light);
+}
+
+/* ============================================================================
+   Editor Card
+   ============================================================================ */
+
+.content-editor {
+    background: var(--color-surface);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.editor-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.editor-title-group {
+    flex: 1;
+}
+
+.editor-page-title {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.editor-title-icon {
+    font-size: 32px;
+}
+
+.editor-path-info {
+    font-size: 13px;
+    color: var(--color-text-light);
+    margin-top: var(--spacing-sm);
+}
+
+.path-label {
+    font-weight: 600;
+    margin-right: var(--spacing-xs);
+}
+
+#storage-path {
+    font-family: 'Monaco', 'Courier New', monospace;
+    background: var(--color-bg);
+    padding: 2px 8px;
+    border-radius: var(--border-radius);
+}
+
+.editor-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-draft {
+    background: #E1E1E1;
+    color: #6E6E6E;
+}
+
+.status-published {
+    background: #D5F0E4;
+    color: #2D9D78;
+}
+
+/* ============================================================================
+   Form
+   ============================================================================ */
+
+.editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.form-fieldwrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.form-fieldlabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.required-indicator {
+    color: var(--color-error);
+    margin-left: 2px;
+}
+
+.form-textfield {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.form-textfield:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.form-textfield--multiline {
+    resize: vertical;
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+.form-fieldinfo {
+    font-size: 12px;
+    color: var(--color-text-light);
+}
+
+.form-fieldinfo code {
+    background: var(--color-bg);
+    padding: 2px 6px;
+    border-radius: var(--border-radius);
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 11px;
+}
+
+/* ============================================================================
+   Tier Selector
+   ============================================================================ */
+
+.tier-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+}
+
+@media (max-width: 768px) {
+    .tier-selector {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tier-option {
+    cursor: pointer;
+    position: relative;
+}
+
+.tier-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.tier-card {
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    text-align: center;
+    transition: all var(--transition);
+    background: var(--color-surface);
+}
+
+.tier-option:hover .tier-card {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 8px rgba(20, 115, 230, 0.15);
+}
+
+.tier-option input[type="radio"]:checked + .tier-card {
+    border-color: var(--color-primary);
+    background: rgba(20, 115, 230, 0.05);
+}
+
+.tier-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: var(--spacing-xs);
+}
+
+.tier-standard .tier-name { color: #6E6E6E; }
+.tier-express .tier-name { color: #E68619; }
+.tier-priority .tier-name { color: #D7373F; }
+
+.tier-time {
+    font-size: 13px;
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-xs);
+}
+
+.tier-cost {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.tier-desc {
+    font-size: 12px;
+    color: var(--color-text-light);
+}
+
+/* ============================================================================
+   Action Buttons
+   ============================================================================ */
+
+.editor-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.editor-button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-sm);
+}
+
+.editor-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.editor-button--primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.editor-button--primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+}
+
+.editor-button--secondary {
+    background: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.editor-button--secondary:hover:not(:disabled) {
+    background: var(--color-border);
+}
+
+.editor-button--warning {
+    background: var(--color-error);
+    color: white;
+}
+
+.editor-button--warning:hover:not(:disabled) {
+    background: #B72932;
+}
+
+/* ============================================================================
+   Status Messages
+   ============================================================================ */
+
+.status-container {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-top: var(--spacing-lg);
+}
+
+.status-info {
+    background: #E1F1FF;
+    border-left: 4px solid var(--color-info);
+}
+
+.status-success {
+    background: #D5F0E4;
+    border-left: 4px solid var(--color-success);
+}
+
+.status-warning {
+    background: #FFF0D6;
+    border-left: 4px solid var(--color-warning);
+}
+
+.status-error {
+    background: #FFE4E6;
+    border-left: 4px solid var(--color-error);
+}
+
+.status-message {
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+}
+
+.status-details {
+    font-size: 13px;
+    color: var(--color-text-light);
+}
+
+/* ============================================================================
+   Footer
+   ============================================================================ */
+
+.editor-footer {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: var(--spacing-md) var(--spacing-xl);
+}
+
+.footer-info {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: var(--spacing-lg);
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--color-text-light);
+}
+
+.mode-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+

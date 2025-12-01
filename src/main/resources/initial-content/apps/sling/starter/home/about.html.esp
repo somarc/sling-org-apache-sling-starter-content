@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>AEM Author Client - Blockchain AEM Stack</title>
+        <meta name="Description" content="AEM Author Client connected to Blockchain AEM Global Store with Oak Chain consensus">
+        <meta name="theme-color" content="#667eea">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 40px 20px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            .header {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 16px;
+                padding: 50px;
+                margin-bottom: 40px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                text-align: center;
+            }
+
+            h1 {
+                font-size: 3.5rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 15px;
+                line-height: 1.2;
+            }
+
+            .tagline {
+                font-size: 1.3rem;
+                color: #666;
+                margin-bottom: 10px;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                color: #888;
+                font-style: italic;
+            }
+
+            .card-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 30px;
+                margin-bottom: 40px;
+            }
+
+            .card {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 12px;
+                padding: 35px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                transition: transform 0.3s, box-shadow 0.3s;
+                border-left: 5px solid #667eea;
+            }
+
+            .card:hover {
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            }
+
+            .card h2 {
+                font-size: 1.8rem;
+                color: #333;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .card-icon {
+                font-size: 2rem;
+            }
+
+            .card p {
+                color: #666;
+                line-height: 1.6;
+                margin-bottom: 20px;
+                font-size: 1.05rem;
+            }
+
+            .card-links {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                display: inline-block;
+                padding: 14px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: all 0.3s;
+                text-align: center;
+                font-size: 1rem;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-primary:hover {
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                background: linear-gradient(135deg, #f6851b 0%, #e2761b 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(246, 133, 27, 0.4);
+            }
+
+            .btn-secondary:hover {
+                box-shadow: 0 6px 20px rgba(246, 133, 27, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .btn-tertiary {
+                background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+                color: white;
+                box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+            }
+
+            .btn-tertiary:hover {
+                box-shadow: 0 6px 20px rgba(72, 187, 120, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .system-card {
+                grid-column: 1 / -1;
+                border-left-color: #48bb78;
+            }
+
+            .system-links {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .footer {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 30px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                color: #666;
+            }
+
+            .footer a {
+                color: #667eea;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .footer a:hover {
+                text-decoration: underline;
+            }
+
+            .login-section {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            }
+
+            .login-section h2 {
+                color: #2d3748;
+                margin-bottom: 20px;
+                font-size: 24px;
+            }
+
+            .login-form {
+                display: grid;
+                gap: 15px;
+                max-width: 400px;
+            }
+
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .form-group label {
+                color: #4a5568;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .form-group input {
+                padding: 12px;
+                border: 2px solid #e2e8f0;
+                border-radius: 8px;
+                font-size: 16px;
+                transition: border-color 0.3s;
+            }
+
+            .form-group input:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+
+            .login-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .login-btn:hover {
+                transform: translateY(-2px);
+            }
+
+            .login-info {
+                background: #f7fafc;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 4px solid #667eea;
+                color: #4a5568;
+                font-size: 14px;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #2d3748;
+                font-weight: 600;
+            }
+
+            .badge {
+                display: inline-block;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-left: 10px;
+            }
+
+            .badge-poc {
+                background: #fed7d7;
+                color: #c53030;
+            }
+
+            .badge-new {
+                background: #c6f6d5;
+                color: #22543d;
+            }
+
+            .ws-status {
+                display: inline-block;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin-left: 15px;
+                transition: all 0.3s ease;
+            }
+
+            .ws-status.connected {
+                background: #c6f6d5;
+                color: #22543d;
+                animation: pulse-green 2s infinite;
+            }
+
+            .ws-status.disconnected {
+                background: #fed7d7;
+                color: #c53030;
+            }
+
+            @keyframes pulse-green {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.7; }
+            }
+
+            .live-feed {
+                background: rgba(255, 255, 255, 0.98);
+                border-radius: 12px;
+                padding: 25px;
+                margin-bottom: 30px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                border-left: 5px solid #48bb78;
+            }
+
+            .live-feed h2 {
+                color: #2d3748;
+                margin-bottom: 15px;
+                font-size: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .live-feed-items {
+                max-height: 400px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .live-feed-item {
+                padding: 12px 15px;
+                background: #f7fafc;
+                border-radius: 8px;
+                border-left: 3px solid #667eea;
+                animation: slideIn 0.3s ease-out;
+                display: flex;
+                justify-content: space-between;
+                align-items: start;
+            }
+
+            .live-feed-item.epoch {
+                border-left-color: #48bb78;
+            }
+
+            .live-feed-item.validator {
+                border-left-color: #4299e1;
+            }
+
+            .live-feed-item.consensus {
+                border-left-color: #ed8936;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateX(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+
+            .live-feed-content {
+                flex: 1;
+            }
+
+            .live-feed-time {
+                font-size: 0.75rem;
+                color: #a0aec0;
+                white-space: nowrap;
+                margin-left: 10px;
+            }
+
+            .live-feed-title {
+                font-weight: 600;
+                color: #2d3748;
+                margin-bottom: 4px;
+            }
+
+            .live-feed-desc {
+                font-size: 0.9rem;
+                color: #4a5568;
+            }
+
+            .empty-feed {
+                text-align: center;
+                padding: 40px 20px;
+                color: #a0aec0;
+                font-style: italic;
+            }
+
+            /* INNOVATION SHOWCASE - BRAGFEST STYLING */
+            .innovation-showcase {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 16px;
+                padding: 40px;
+                margin-bottom: 40px;
+                backdrop-filter: blur(10px);
+                border: 2px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .innovation-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 25px;
+            }
+
+            .innovation-item {
+                background: rgba(255, 255, 255, 0.95);
+                border-radius: 12px;
+                padding: 25px;
+                text-align: center;
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
+            }
+
+            .innovation-item:hover {
+                transform: translateY(-5px);
+                border-color: #48bb78;
+                box-shadow: 0 10px 30px rgba(72, 187, 120, 0.3);
+            }
+
+            .innovation-icon {
+                font-size: 3rem;
+                margin-bottom: 15px;
+            }
+
+            .innovation-item h3 {
+                color: #2d3748;
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+                font-weight: 700;
+            }
+
+            .innovation-item p {
+                color: #4a5568;
+                font-size: 0.9rem;
+                line-height: 1.5;
+                margin-bottom: 15px;
+            }
+
+            .tech-badge {
+                display: inline-block;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            @media (max-width: 768px) {
+                h1 {
+                    font-size: 2.5rem;
+                }
+                
+                .header {
+                    padding: 30px;
+                }
+
+                .card-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .system-links {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>⛓️ Blockchain AEM</h1>
+                <p class="tagline">World's First Decentralized Content Repository</p>
+                <p class="subtitle">Ethereum × Oak × Pure Apache Sling</p>
+                <div style="margin-top: 20px;">
+                    <span class="badge badge-poc">GARAGE WEEK 2025</span>
+                    <span id="ws-status" class="ws-status disconnected" title="SSE connection status">🔴 Connecting...</span>
+                </div>
+            </div>
+
+            <!-- INNOVATION SHOWCASE - BRAGFEST MODE -->
+            <div class="innovation-showcase">
+                <h2 style="text-align: center; color: #fff; margin-bottom: 30px; font-size: 2rem;">
+                    🚀 Cutting-Edge Architecture
+                </h2>
+                <div class="innovation-grid">
+                    <div class="innovation-item">
+                        <div class="innovation-icon">⚡</div>
+                        <h3>Real-Time Live Updates</h3>
+                        <p>Zero-polling SSE-based blockchain events. Production-grade push architecture.</p>
+                        <div class="tech-badge">Pure Sling</div>
+                    </div>
+                    <div class="innovation-item">
+                        <div class="innovation-icon">🔐</div>
+                        <h3>Three-Address Security</h3>
+                        <p>Content Owner • Payer • Validators. Cryptographic identity for every participant.</p>
+                        <div class="tech-badge">Ethereum Wallets</div>
+                    </div>
+                    <div class="innovation-item">
+                        <div class="innovation-icon">🌐</div>
+                        <h3>HTTP Segment Transfer</h3>
+                        <p>TB-scale content replication via Oak's proven segment architecture.</p>
+                        <div class="tech-badge">Custom Oak SPI</div>
+                    </div>
+                    <div class="innovation-item">
+                        <div class="innovation-icon">💰</div>
+                        <h3>MetaMask Integration</h3>
+                        <p>Pay validators with crypto. Standard/Express/Priority tiers ($3.25-$32.50).</p>
+                        <div class="tech-badge">Web3j</div>
+                    </div>
+                    <div class="innovation-item">
+                        <div class="innovation-icon">🎯</div>
+                        <h3>No AEM Bloat</h3>
+                        <p>Pure Apache Sling. Zero Granite dependencies. First-class open-source.</p>
+                        <div class="tech-badge">100% OSGi</div>
+                    </div>
+                    <div class="innovation-item">
+                        <div class="innovation-icon">⛓️</div>
+                        <h3>Ethereum Finality</h3>
+                        <p>On-chain verification. Smart contract events. Sepolia testnet ready.</p>
+                        <div class="tech-badge">Production Pattern</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Feed Section -->
+            <div class="live-feed">
+                <h2>
+                    <span>📡</span>
+                    <span>Live Blockchain Updates</span>
+                </h2>
+                <div class="live-feed-items" id="liveFeed">
+                    <div class="empty-feed">
+                        Waiting for blockchain events...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Section -->
+            <div class="login-section" id="loginSection">
+                <h2>🔐 Authentication Required</h2>
+                <form class="login-form" method="POST" action="${request.contextPath}/j_security_check" enctype="multipart/form-data" accept-charset="UTF-8">
+                    <input type="hidden" name="_charset_" value="UTF-8" />
+                    <input type="hidden" name="resource" value="${request.requestURI}" />
+                    
+                    <div class="login-info">
+                        ℹ️ Default credentials: <strong>admin</strong> / <strong>admin</strong>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="j_username">Username</label>
+                        <input id="j_username" name="j_username" type="text" placeholder="admin" required autofocus />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="j_password">Password</label>
+                        <input id="j_password" name="j_password" type="password" placeholder="admin" required />
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        🚀 Login to AEM Client
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-grid">
+                <!-- MetaMask Publishing -->
+                <div class="card">
+                    <h2>
+                        <span class="card-icon">🦊</span>
+                        MetaMask Publishing
+                        <span class="badge badge-new">NEW</span>
+                    </h2>
+                    <p>
+                        Pay validators with cryptocurrency (ETH/USDC) via MetaMask. 
+                        Choose Standard ($3.25), Express ($6.50), or Priority ($32.50) tiers 
+                        for instant decentralized content publishing.
+                    </p>
+                    <div class="card-links">
+                        <a href="../content/blockchain-aem/oak-chain-publish.html" class="btn btn-secondary">
+                            💰 Pay & Publish to Oak Chain
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Blockchain Browser -->
+                <div class="card">
+                    <h2>
+                        <span class="card-icon">🔍</span>
+                        Blockchain Browser
+                    </h2>
+                    <p>
+                        Explore the global oak-chain content via HTTP Segment Transfer. 
+                        View genesis content, validator status, and decentralized content 
+                        replicated across multiple validators.
+                    </p>
+                    <div class="card-links">
+                        <a href="../content/blockchain-aem/blockchain.html" class="btn btn-primary">
+                            🌐 Browse Global Chain
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Agentic Chat -->
+                <div class="card">
+                    <h2>
+                        <span class="card-icon">🤖</span>
+                        Agentic Chat
+                    </h2>
+                    <p>
+                        Chat with AI assistants that understand Oak validators, consensus 
+                        mechanics, and blockchain economics. Get real-time insights into 
+                        validator state and proposal queues.
+                    </p>
+                    <div class="card-links">
+                        <a href="../content/blockchain-aem/agentic-chat.html" class="btn btn-primary">
+                            💬 Chat with Oak Validators
+                        </a>
+                    </div>
+                </div>
+
+                <!-- System Administration -->
+                <div class="card system-card">
+                    <h2>
+                        <span class="card-icon">⚙️</span>
+                        System Administration
+                    </h2>
+                    <p>
+                        Access Sling system tools, OSGi console, JCR browser, and configuration 
+                        management. Admin credentials: <code style="background: #f7fafc; padding: 4px 8px; border-radius: 4px;">admin/admin</code>
+                    </p>
+                    <div class="system-links">
+                        <a href="../system/console" class="btn btn-tertiary">
+                            🎛️ OSGi Console
+                        </a>
+                        <a href="../bin/browser.html" class="btn btn-tertiary">
+                            📂 JCR Browser
+                        </a>
+                        <a href="../system/console/configMgr" class="btn btn-tertiary">
+                            🔧 Configuration
+                        </a>
+                        <a href="../system/console/bundles" class="btn btn-tertiary">
+                            📦 Bundles
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer">
+                <p>
+                    <strong>Blockchain AEM Author Client</strong> - Built on Apache Sling + Jackrabbit Oak 1.89-SNAPSHOT
+                </p>
+                <p style="margin-top: 10px;">
+                    <a href="https://github.com/apache/jackrabbit-oak" target="_blank">Oak Repository</a> • 
+                    <a href="https://sling.apache.org" target="_blank">Apache Sling</a> • 
+                    <a href="../content/blockchain-aem/blockchain.html">POC Documentation</a>
+                </p>
+                <p style="margin-top: 15px; font-size: 0.9rem; color: #999;">
+                    ⚡ Powered by Aeron Consensus • HTTP Segment Transfer • Ethereum Smart Contracts
+                </p>
+            </div>
+        </div>
+
+        <script src="../system/sling.js" type="application/javascript"></script>
+        <script type="application/javascript">
+            // Check authentication status and update UI
+            Sling.getSessionInfoAsync( function(info) {
+                const loginSection = document.getElementById('loginSection');
+                let userID = null;
+                try {
+                    userID = (info && info.userID) ? String(info.userID) : null;
+                } catch (e) {
+                    console.warn('Error getting userID:', e);
+                    userID = null;
+                }
+
+                console.log('Logged in as:', userID || 'anonymous');
+
+                if (userID && userID !== 'anonymous' && userID !== 'null' && userID !== 'undefined') {
+                    // User is authenticated - hide login form and show user info
+                    loginSection.innerHTML = 
+                        '<div class="user-info">' +
+                            '<span style="font-size: 24px;">👤</span>' +
+                            '<div>' +
+                                '<strong>Logged in as: ' + userID + '</strong>' +
+                                '<p style="margin: 5px 0 0; font-size: 14px; font-weight: normal; color: #718096;">' +
+                                    'You have full access to all AEM client features' +
+                                '</p>' +
+                            '</div>' +
+                        '</div>';
+                    loginSection.style.background = 'rgba(72, 187, 120, 0.1)';
+                    loginSection.style.borderLeft = '4px solid #48bb78';
+                }
+                // If not authenticated, login form is already visible
+            });
+        </script>
+
+        <!-- 🔥 Server-Sent Events (SSE) Real-Time Updates - Zero Dependencies! -->
+        <script src="/apps/sling/starter/home/js/sse-manager.js"></script>
+        <script>
+            // Initialize SSE connection for live blockchain updates
+            const sseManager = new BlockchainSSEManager();
+            const liveFeed = document.getElementById('liveFeed');
+            const maxFeedItems = 20; // Keep last 20 updates
+
+            // Update connection status badge
+            const statusBadge = document.getElementById('ws-status');
+            function updateConnectionStatus(connected) {
+                if (statusBadge) {
+                    if (connected) {
+                        statusBadge.className = 'ws-status connected';
+                        statusBadge.textContent = '🟢 Connected';
+                        statusBadge.title = 'SSE Real-Time Updates Active';
+                    } else {
+                        statusBadge.className = 'ws-status disconnected';
+                        statusBadge.textContent = '🔴 Connecting...';
+                        statusBadge.title = 'Establishing SSE connection';
+                    }
+                }
+            }
+
+            // Handle connection events
+            sseManager.on('connected', (data) => {
+                console.log('🎉 SSE connected - real-time updates active!', data);
+                updateConnectionStatus(true);
+                addFeedItem('system', 'Connected to Live Feed', 'Real-time blockchain updates enabled', '✅');
+            });
+
+            sseManager.on('disconnect', (data) => {
+                console.log('⚠️  SSE disconnected, auto-reconnecting...');
+                updateConnectionStatus(false);
+                addFeedItem('system', 'Connection Lost', 'Attempting to reconnect...', '🔴');
+            });
+
+            // Handle blockchain event types
+            sseManager.on('epoch', (data) => {
+                console.log('⛓️  New epoch detected:', data);
+                addFeedItem(
+                    'epoch',
+                    'New Ethereum Epoch',
+                    'Epoch ' + (data.epochNumber || 'N/A') + ' detected from validators',
+                    '⛓️'
+                );
+            });
+
+            sseManager.on('validator', (data) => {
+                console.log('🔷 Validator update:', data);
+                addFeedItem(
+                    'validator',
+                    'Validator Update',
+                    data.message || 'Validator state changed',
+                    '🔷'
+                );
+            });
+
+            sseManager.on('sync', (data) => {
+                console.log('🔄 Validator sync:', data);
+                addFeedItem(
+                    'sync',
+                    'Content Synchronized',
+                    data.message || 'New content from global store',
+                    '🔄'
+                );
+            });
+
+            sseManager.on('proposal', (data) => {
+                console.log('📝 Content proposal:', data);
+                addFeedItem(
+                    'proposal',
+                    'New Content Proposal',
+                    data.message || 'Content proposal submitted',
+                    '📝'
+                );
+            });
+
+            sseManager.on('content', (data) => {
+                console.log('📄 Content update:', data);
+                addFeedItem(
+                    'content',
+                    'Content Update',
+                    data.message || 'JCR content modified',
+                    '📄'
+                );
+            });
+
+            sseManager.on('status', (data) => {
+                console.log('ℹ️  Status update:', data);
+                if (data.activeClients) {
+                    addFeedItem(
+                        'system',
+                        'System Status',
+                        data.activeClients + ' active connections',
+                        'ℹ️'
+                    );
+                }
+            });
+
+            sseManager.on('heartbeat', (data) => {
+                // Silent heartbeat - just keep connection alive
+                console.debug('💓 Heartbeat received');
+            });
+
+            // Add item to live feed
+            function addFeedItem(type, title, description, icon) {
+                // Remove empty state if present
+                const emptyFeed = liveFeed.querySelector('.empty-feed');
+                if (emptyFeed) {
+                    emptyFeed.remove();
+                }
+
+                // Create feed item
+                const item = document.createElement('div');
+                item.className = 'live-feed-item ' + type;
+                item.innerHTML = 
+                    '<div class="live-feed-content">' +
+                        '<div class="live-feed-title">' + icon + ' ' + escapeHtml(title) + '</div>' +
+                        '<div class="live-feed-desc">' + escapeHtml(description) + '</div>' +
+                    '</div>' +
+                    '<div class="live-feed-time">' + formatTime(new Date()) + '</div>';
+
+                // Add to top of feed
+                liveFeed.insertBefore(item, liveFeed.firstChild);
+
+                // Limit feed size
+                while (liveFeed.children.length > maxFeedItems) {
+                    liveFeed.removeChild(liveFeed.lastChild);
+                }
+
+                // Add subtle animation
+                item.style.animation = 'slideIn 0.3s ease-out';
+            }
+
+            // Helper: Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Helper: Format time
+            function formatTime(date) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                const seconds = String(date.getSeconds()).padStart(2, '0');
+                return hours + ':' + minutes + ':' + seconds;
+            }
+
+            // Connect on page load
+            window.addEventListener('load', () => {
+                console.log('🚀 Initializing SSE connection...');
+                sseManager.connect();
+            });
+
+            // Disconnect on page unload
+            window.addEventListener('beforeunload', () => {
+                sseManager.disconnect();
+            });
+        </script>
+        <!-- Do not remove this comment, used for Starter integration tests -->
+    </body>
+</html>

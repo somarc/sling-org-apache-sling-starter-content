@@ -1,0 +1,247 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Editor | Blockchain AEM</title>
+    <link rel="stylesheet" href="/apps/blockchain-aem/components/unified-editor/clientlibs/css/editor.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✏️</text></svg>">
+</head>
+<body class="editor-shell">
+    <!-- Header -->
+    <header class="editor-header">
+        <div class="editor-header-home">
+            <a href="/" class="editor-homeAnchor">
+                <span class="editor-homeAnchor-label">Blockchain AEM</span>
+                <span class="editor-homeAnchor-sublabel">Universal Editor</span>
+            </a>
+        </div>
+        <div class="editor-header-actions">
+            <div class="wallet-status" id="wallet-status">
+                <span class="wallet-icon">🦊</span>
+                <span id="wallet-address">Not Connected</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="editor-content">
+        <div class="editor-container">
+            <!-- Breadcrumbs -->
+            <nav class="editor-breadcrumbs" id="breadcrumbs">
+                <a href="/">Home</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="/content/blockchain-aem/editor.html">Editor</a>
+                <span class="breadcrumb-separator">›</span>
+                <span id="current-path">Loading...</span>
+            </nav>
+
+            <!-- Content Editor -->
+            <div class="content-editor">
+                <div class="editor-header-section">
+                    <div class="editor-title-group">
+                        <h1 class="editor-page-title">
+                            <span class="editor-title-icon">📝</span>
+                            <span id="editor-title-text">Content Editor</span>
+                        </h1>
+                        <div class="editor-path-info">
+                            <span class="path-label">Storage Path:</span>
+                            <code id="storage-path">/oak-chain/...</code>
+                        </div>
+                    </div>
+                    <div class="editor-status">
+                        <span class="status-badge" id="status-badge">Draft</span>
+                    </div>
+                </div>
+
+                <form id="content-form" class="editor-form">
+                    <!-- Organization Path -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel" for="organization">
+                            Organization <span class="required-indicator">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="organization"
+                            name="organization" 
+                            class="form-textfield" 
+                            placeholder="e.g., adobe, my-company"
+                            required
+                        >
+                        <div class="form-fieldinfo">
+                            Your content will be stored at: <code>/oak-chain/{wallet-shard}/{wallet-address}/content/<strong>{organization}</strong></code>
+                        </div>
+                    </div>
+
+                    <!-- Title Field -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel" for="title">
+                            Title <span class="required-indicator">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="title"
+                            name="title" 
+                            class="form-textfield" 
+                            placeholder="Enter a compelling title..."
+                            required
+                        >
+                    </div>
+
+                    <!-- Date Field -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel" for="date">
+                            Publication Date <span class="required-indicator">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="date"
+                            name="date" 
+                            class="form-textfield" 
+                            required
+                        >
+                    </div>
+
+                    <!-- Author Field -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel" for="author">
+                            Author <span class="required-indicator">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="author"
+                            name="author" 
+                            class="form-textfield" 
+                            placeholder="Author name..."
+                            required
+                        >
+                    </div>
+
+                    <!-- Abstract Field -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel" for="abstract">
+                            Abstract <span class="required-indicator">*</span>
+                        </label>
+                        <textarea 
+                            id="abstract"
+                            name="abstract" 
+                            class="form-textfield form-textfield--multiline" 
+                            rows="6"
+                            placeholder="Enter a brief summary of your content..."
+                            required
+                        ></textarea>
+                        <div class="form-fieldinfo">
+                            A brief summary of the content (200-500 characters recommended)
+                        </div>
+                    </div>
+
+                    <!-- Content Body -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel" for="content-body">
+                            Content Body
+                        </label>
+                        <textarea 
+                            id="content-body"
+                            name="contentBody" 
+                            class="form-textfield form-textfield--multiline" 
+                            rows="12"
+                            placeholder="Enter the main content..."
+                        ></textarea>
+                    </div>
+
+                    <!-- Payment Tier Selection -->
+                    <div class="form-fieldwrapper">
+                        <label class="form-fieldlabel">
+                            Publication Tier
+                        </label>
+                        <div class="tier-selector">
+                            <label class="tier-option">
+                                <input type="radio" name="tier" value="0" checked>
+                                <div class="tier-card tier-standard">
+                                    <div class="tier-name">Standard</div>
+                                    <div class="tier-time">≤ 13 minutes</div>
+                                    <div class="tier-cost">~$0.02</div>
+                                    <div class="tier-desc">For evergreen content</div>
+                                </div>
+                            </label>
+                            <label class="tier-option">
+                                <input type="radio" name="tier" value="1">
+                                <div class="tier-card tier-express">
+                                    <div class="tier-name">Express</div>
+                                    <div class="tier-time">≤ 6.5 minutes</div>
+                                    <div class="tier-cost">~$0.04</div>
+                                    <div class="tier-desc">For daily updates</div>
+                                </div>
+                            </label>
+                            <label class="tier-option">
+                                <input type="radio" name="tier" value="2">
+                                <div class="tier-card tier-priority">
+                                    <div class="tier-name">Priority</div>
+                                    <div class="tier-time">≤ 45 seconds</div>
+                                    <div class="tier-cost">~$0.20</div>
+                                    <div class="tier-desc">For breaking news</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-fieldwrapper editor-actions">
+                        <button 
+                            type="button" 
+                            id="publish-btn"
+                            class="editor-button editor-button--primary">
+                            <span class="editor-button-label">🚀 Publish to oak-chain</span>
+                        </button>
+
+                        <button 
+                            type="button" 
+                            id="unpublish-btn"
+                            class="editor-button editor-button--warning"
+                            style="display: none;">
+                            <span class="editor-button-label">🗑️ Unpublish from oak-chain</span>
+                        </button>
+                    </div>
+
+                    <!-- Status Messages -->
+                    <div id="status-container" class="status-container" style="display: none;">
+                        <div id="status-message" class="status-message"></div>
+                        <div id="status-details" class="status-details"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="editor-footer">
+        <div class="footer-info">
+            <span class="mode-badge" id="mode-badge">Loading...</span>
+            <span>Validator: <strong id="validator-url">Loading...</strong></span>
+            <span>Network: <strong id="network-name">Loading...</strong></span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/apps/blockchain-aem/components/unified-editor/clientlibs/js/editor.js"></script>
+</body>
+</html>
+

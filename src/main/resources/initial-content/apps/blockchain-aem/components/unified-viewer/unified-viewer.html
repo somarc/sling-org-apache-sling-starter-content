@@ -1,0 +1,148 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Viewer | Blockchain AEM</title>
+    <link rel="stylesheet" href="/apps/blockchain-aem/components/unified-viewer/clientlibs/css/viewer.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+    <meta http-equiv="refresh" content="10">
+</head>
+<body>
+    <!-- Header -->
+    <header class="site-header">
+        <div class="site-container">
+            <div class="site-logo">
+                <span class="site-logo-icon">🌐</span>
+                <div class="site-logo-text">
+                    <span class="site-name">Blockchain AEM</span>
+                    <span class="site-tagline">Public Content</span>
+                </div>
+            </div>
+            <nav class="site-nav">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/content/blockchain-aem/viewer.html" class="nav-link">Latest</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="site-main">
+        <div class="site-container">
+            <article class="content-article" id="content-article">
+                <!-- Loading State -->
+                <div class="loading-state" id="loading-state">
+                    <div class="loading-spinner"></div>
+                    <p>Loading content from oak-chain...</p>
+                    <p class="loading-info" id="loading-info">Reading from global store</p>
+                </div>
+
+                <!-- Content (populated by JavaScript) -->
+                <div class="content-body" id="content-body" style="display: none;">
+                    <header class="content-header">
+                        <h1 class="content-title" id="content-title">
+                            <!-- Title from JCR -->
+                        </h1>
+                        <div class="content-meta">
+                            <time class="content-date" id="content-date">
+                                <!-- Date from JCR -->
+                            </time>
+                            <span class="meta-separator">•</span>
+                            <address class="content-author" id="content-author">
+                                <!-- Author from JCR -->
+                            </address>
+                        </div>
+                    </header>
+
+                    <div class="content-abstract" id="content-abstract">
+                        <!-- Abstract from JCR -->
+                    </div>
+
+                    <div class="content-main" id="content-main">
+                        <!-- Main content body from JCR -->
+                    </div>
+
+                    <!-- Blockchain Verification Footer -->
+                    <footer class="content-verification">
+                        <div class="verification-badge">
+                            <span class="verification-icon">✅</span>
+                            <span class="verification-text">Content verified on blockchain</span>
+                        </div>
+                        <div class="verification-details">
+                            <div class="verification-item">
+                                <span class="verification-label">Storage Path:</span>
+                                <span class="verification-value" id="storage-path">/oak-chain/...</span>
+                            </div>
+                            <div class="verification-item">
+                                <span class="verification-label">Content Owner:</span>
+                                <span class="verification-value" id="content-owner">...</span>
+                            </div>
+                            <div class="verification-item">
+                                <span class="verification-label">Publisher:</span>
+                                <span class="verification-value" id="publisher">...</span>
+                            </div>
+                            <div class="verification-item" id="tx-hash-item" style="display: none;">
+                                <span class="verification-label">Transaction:</span>
+                                <span class="verification-value">
+                                    <a href="#" id="etherscan-link" target="_blank" rel="noopener">
+                                        View on Etherscan →
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+
+                <!-- Error State -->
+                <div class="error-state" id="error-state" style="display: none;">
+                    <div class="error-icon">⚠️</div>
+                    <h2>Content Not Available</h2>
+                    <p>The content has not been published yet, or there was an error loading it.</p>
+                    <p class="error-detail" id="error-path">Path: /oak-chain/...</p>
+                    <button onclick="location.reload()" class="reload-button">
+                        Reload Page
+                    </button>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="site-container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <span class="demo-badge" id="mode-badge">Loading...</span>
+                    <span>Auto-refreshing every 10 seconds</span>
+                </div>
+                <div class="footer-meta">
+                    <span>Last updated: <span id="last-updated">Loading...</span></span>
+                    <span>Network: <strong id="network-name">Loading...</strong></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/apps/blockchain-aem/components/unified-viewer/clientlibs/js/viewer.js"></script>
+</body>
+</html>
+

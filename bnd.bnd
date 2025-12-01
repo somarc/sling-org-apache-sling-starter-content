@@ -1,4 +1,6 @@
-Sling-Initial-Content: initial-content
+# Sling-Initial-Content with overwrite for /apps (scripts/components always update)
+# This ensures code changes take effect on restart without needing to clear cache
+Sling-Initial-Content: initial-content;overwrite:=true;path:=/;uninstall:=true
 
 -includeresource: target/frontend/dist
 

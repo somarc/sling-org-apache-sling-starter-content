@@ -1,0 +1,371 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ============================================================================
+   Blockchain AEM - Unified Viewer Styles
+   Public-facing content viewer
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-primary: #1473E6;
+    --color-success: #2D9D78;
+    --color-text: #2C2C2C;
+    --color-text-light: #6E6E6E;
+    --color-bg: #FAFAFA;
+    --color-surface: #FFFFFF;
+    --color-border: #E1E1E1;
+    
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    
+    --max-width: 900px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.7;
+}
+
+/* ============================================================================
+   Header
+   ============================================================================ */
+
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-lg) 0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.site-container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
+}
+
+.site-header .site-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    text-decoration: none;
+}
+
+.site-logo-icon {
+    font-size: 32px;
+}
+
+.site-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.site-tagline {
+    font-size: 12px;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.site-nav {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.nav-link {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--color-primary);
+}
+
+/* ============================================================================
+   Main Content
+   ============================================================================ */
+
+.site-main {
+    padding: var(--spacing-2xl) 0;
+}
+
+.content-article {
+    background: var(--color-surface);
+    border-radius: 8px;
+    padding: var(--spacing-2xl);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    min-height: 400px;
+}
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+    text-align: center;
+}
+
+.loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--color-border);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: var(--spacing-lg);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-info {
+    font-size: 14px;
+    color: var(--color-text-light);
+    margin-top: var(--spacing-sm);
+}
+
+/* Content */
+.content-header {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.content-title {
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--color-text);
+    line-height: 1.3;
+    margin-bottom: var(--spacing-md);
+}
+
+.content-meta {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 14px;
+    color: var(--color-text-light);
+}
+
+.meta-separator {
+    color: var(--color-border);
+}
+
+.content-author {
+    font-style: normal;
+}
+
+.content-abstract {
+    font-size: 18px;
+    line-height: 1.8;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-bg);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 4px;
+}
+
+.content-main {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xl);
+    white-space: pre-wrap;
+}
+
+/* Verification Footer */
+.content-verification {
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-lg);
+    border-top: 2px solid var(--color-border);
+}
+
+.verification-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background: #D5F0E4;
+    border-radius: 8px;
+    margin-bottom: var(--spacing-md);
+}
+
+.verification-icon {
+    font-size: 24px;
+}
+
+.verification-text {
+    font-weight: 600;
+    color: var(--color-success);
+}
+
+.verification-details {
+    display: grid;
+    gap: var(--spacing-sm);
+    font-size: 13px;
+}
+
+.verification-item {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.verification-label {
+    font-weight: 600;
+    color: var(--color-text-light);
+    min-width: 120px;
+}
+
+.verification-value {
+    font-family: 'Monaco', 'Courier New', monospace;
+    color: var(--color-text);
+}
+
+.verification-value a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.verification-value a:hover {
+    text-decoration: underline;
+}
+
+/* Error State */
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-2xl);
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 64px;
+    margin-bottom: var(--spacing-lg);
+}
+
+.error-state h2 {
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: var(--spacing-md);
+}
+
+.error-detail {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--color-text-light);
+    margin-top: var(--spacing-md);
+}
+
+.reload-button {
+    margin-top: var(--spacing-lg);
+    padding: 12px 24px;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.reload-button:hover {
+    background: #0D66D0;
+}
+
+/* ============================================================================
+   Footer
+   ============================================================================ */
+
+.site-footer {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: var(--spacing-lg) 0;
+    margin-top: var(--spacing-2xl);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.footer-info,
+.footer-meta {
+    display: flex;
+    gap: var(--spacing-lg);
+    font-size: 12px;
+    color: var(--color-text-light);
+}
+
+.demo-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #2D9D78;
+}
+
+/* ============================================================================
+   Responsive
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .content-title {
+        font-size: 28px;
+    }
+    
+    .content-abstract {
+        font-size: 16px;
+    }
+    
+    .content-article {
+        padding: var(--spacing-lg);
+    }
+    
+    .footer-content {
+        flex-direction: column;
+    }
+}
+

@@ -15,22 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-#base=js
-
-# Oak Chain Publisher JavaScript Files
-# Files are loaded in order
-
-# 1. Configuration (must load first)
-web3-config.js
-
-# 2. Core modules
-wallet-manager.js
-form-handler.js
-
-# 3. Biometric authentication (NEW!)
-../../biometric-auth/clientlibs/js/biometric-manager.js
-biometric-publisher.js
-
-# 4. Main application (must load last)
-app.js
+#base=css
+biometric-styles.css
 

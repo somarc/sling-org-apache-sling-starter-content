@@ -1,0 +1,109 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Biometric Authentication | Blockchain AEM</title>
+    <data-sly-use.clientlib="/libs/granite/sightly/templates/clientlib.html" />
+    <data-sly-call="${clientlib.css @ categories='blockchain-aem.biometric-auth'}"/>
+</head>
+<body>
+    <div class="biometric-auth-container">
+        <h2>🔐 Biometric Authentication</h2>
+        
+        <div class="biometric-status">
+            <p>Status: <span id="biometric-status-text">Checking...</span></p>
+        </div>
+        
+        <div class="biometric-actions">
+            <button id="register-biometric-btn" class="biometric-register-btn">
+                Register Face ID / Touch ID
+            </button>
+            
+            <button id="test-biometric-btn" class="biometric-test-btn" disabled>
+                Test Biometric Authentication
+            </button>
+        </div>
+        
+        <div class="biometric-info">
+            <h3>What is Biometric Authentication?</h3>
+            <p>
+                Use your device's Face ID, Touch ID, or Windows Hello to authenticate to Blockchain AEM.
+                Your biometric data never leaves your device - only cryptographic signatures are sent.
+            </p>
+            
+            <h3>How It Works</h3>
+            <ol>
+                <li><strong>Register</strong>: Link your Ethereum wallet to a biometric passkey</li>
+                <li><strong>Authenticate</strong>: Scan biometric to sign write proposals</li>
+                <li><strong>Publish</strong>: Content is written to oak-chain with Face ID signature</li>
+            </ol>
+            
+            <h3>Security</h3>
+            <ul>
+                <li>✅ Private keys never leave device Secure Enclave</li>
+                <li>✅ P-256 signatures (industry standard)</li>
+                <li>✅ Verified on Ethereum via EIP-7951</li>
+                <li>✅ Hardware-backed security</li>
+            </ul>
+        </div>
+    </div>
+    
+    <data-sly-call="${clientlib.js @ categories='blockchain-aem.biometric-auth'}"/>
+    
+    <script>
+        // Test biometric button handler
+        document.getElementById('test-biometric-btn').addEventListener('click', async function() {
+            const button = this;
+            button.disabled = true;
+            button.textContent = 'Testing...';
+            
+            try {
+                const walletAddress = await BiometricManager._getCurrentWalletAddress();
+                if (!walletAddress) {
+                    alert('No wallet address found');
+                    return;
+                }
+                
+                alert(`✅ Biometric test successful!\nWallet: ${walletAddress}`);
+            } catch (error) {
+                alert('❌ Biometric test failed: ' + error.message);
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Test Biometric Authentication';
+            }
+        });
+        
+        // Update status on load
+        BiometricManager.isAvailable().then(available => {
+            const statusText = document.getElementById('biometric-status-text');
+            if (available) {
+                statusText.textContent = '✅ Available';
+                statusText.style.color = '#38ef7d';
+                document.getElementById('test-biometric-btn').disabled = false;
+            } else {
+                statusText.textContent = '❌ Not Available';
+                statusText.style.color = '#f5576c';
+            }
+        });
+    </script>
+</body>
+</html>
+

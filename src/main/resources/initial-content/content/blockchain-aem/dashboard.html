@@ -1,0 +1,447 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain AEM | Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Adobe Clean', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        /* Top Navigation Bar */
+        .top-nav {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .wallet-badge {
+            background: rgba(102, 126, 234, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .welcome-banner {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-banner h1 {
+            font-size: 36px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .welcome-banner p {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        /* Action Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .action-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-icon svg {
+            color: white;
+        }
+        
+        .action-card h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        .action-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 16px;
+        }
+        
+        .card-link {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            padding: 24px 32px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .status-value.success {
+            color: #38ef7d;
+        }
+        
+        .status-value.error {
+            color: #f5576c;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 20px 12px; }
+            .welcome-banner { padding: 24px; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <a href="/" class="logo">
+                Blockchain <span>AEM</span>
+            </a>
+            <div class="nav-links">
+                <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
+                <a href="/content/blockchain-aem/editor/">Editor</a>
+                <a href="/content/blockchain-aem/viewer/">Viewer</a>
+                <a href="/about.html">About</a>
+            </div>
+        </div>
+        <div class="user-info">
+            <span class="wallet-badge" id="user-wallet">0x...</span>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+            <h1>Welcome back!</h1>
+            <p>Choose an action below to get started with Blockchain AEM</p>
+        </div>
+        
+        <!-- Action Cards -->
+        <div class="cards-grid">
+            <!-- Content Editor Card -->
+            <a href="/content/blockchain-aem/editor/" class="action-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" width="32" height="32">
+                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                </div>
+                <h2>Content Editor</h2>
+                <p>Create and publish content to the oak-chain with biometric authentication. No MetaMask popups required!</p>
+                <span class="card-link">
+                    Open Editor
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </span>
+            </a>
+            
+            <!-- Content Viewer Card -->
+            <a href="/content/blockchain-aem/viewer/" class="action-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" width="32" height="32">
+                        <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    </svg>
+                </div>
+                <h2>Content Viewer</h2>
+                <p>Browse and explore content from the distributed oak-chain. View content published by all validators.</p>
+                <span class="card-link">
+                    Open Viewer
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </span>
+            </a>
+            
+            <!-- Blockchain Explorer Card -->
+            <a href="http://localhost:8090/" target="_blank" class="action-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" width="32" height="32">
+                        <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                    </svg>
+                </div>
+                <h2>Validator Dashboard</h2>
+                <p>Monitor the global oak-chain store, view consensus status, and explore segments and blocks.</p>
+                <span class="card-link">
+                    Open Dashboard
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                    </svg>
+                </span>
+            </a>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-label">Authentication</span>
+                <span class="status-value success" id="auth-status">✅ Biometric Active</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Blockchain Network</span>
+                <span class="status-value" id="network-status">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Oak-Chain Status</span>
+                <span class="status-value" id="oakchain-status">Loading...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">IPFS BlobStore</span>
+                <span class="status-value" id="ipfs-status">Loading...</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Load user wallet on page load
+        async function loadUserInfo() {
+            try {
+                // Use custom session info endpoint that works with Web3 authentication
+                const response = await fetch('/bin/blockchain/session-info');
+                if (response.ok) {
+                    const data = await response.json();
+                    const wallet = data.userID;
+                    
+                    console.log('Session info:', data);
+                    
+                    if (wallet && wallet.startsWith('0x')) {
+                        document.getElementById('user-wallet').textContent = 
+                            wallet.substring(0, 6) + '...' + wallet.substring(38);
+                    } else {
+                        // Not authenticated, redirect to login
+                        console.log('User not authenticated (userID does not start with 0x), redirecting to login');
+                        window.location.href = '/starter.html';
+                    }
+                } else {
+                    // Not authenticated
+                    console.log('Session info request failed, redirecting to login');
+                    window.location.href = '/starter.html';
+                }
+            } catch (error) {
+                console.error('Failed to load user info:', error);
+                window.location.href = '/starter.html';
+            }
+        }
+        
+        // Load system status
+        async function loadStatus() {
+            try {
+                // Check blockchain network
+                const mode = '<%= System.getenv("OAK_BLOCKCHAIN_MODE") || "mock" %>';
+                document.getElementById('network-status').textContent = mode.toUpperCase();
+                
+                // Check oak-chain
+                const oakResponse = await fetch('http://localhost:8090/v1/status');
+                if (oakResponse.ok) {
+                    const data = await oakResponse.json();
+                    document.getElementById('oakchain-status').textContent = '✅ Connected';
+                    document.getElementById('oakchain-status').classList.add('success');
+                } else {
+                    document.getElementById('oakchain-status').textContent = '⚠️ Disconnected';
+                    document.getElementById('oakchain-status').classList.add('error');
+                }
+                
+                // Check IPFS
+                const ipfsResponse = await fetch('http://127.0.0.1:5001/api/v0/version', {
+                    method: 'POST'
+                });
+                if (ipfsResponse.ok) {
+                    document.getElementById('ipfs-status').textContent = '✅ Connected';
+                    document.getElementById('ipfs-status').classList.add('success');
+                } else {
+                    document.getElementById('ipfs-status').textContent = '⚠️ Disconnected';
+                    document.getElementById('ipfs-status').classList.add('error');
+                }
+            } catch (error) {
+                console.error('Failed to load status:', error);
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                // Clear local storage
+                localStorage.clear();
+                
+                // Clear session
+                fetch('/system/sling/logout', {
+                    method: 'POST'
+                }).then(() => {
+                    window.location.href = '/starter.html';
+                }).catch(() => {
+                    // Fallback: just redirect
+                    window.location.href = '/starter.html';
+                });
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserInfo();
+            loadStatus();
+        });
+    </script>
+</body>
+</html>
+

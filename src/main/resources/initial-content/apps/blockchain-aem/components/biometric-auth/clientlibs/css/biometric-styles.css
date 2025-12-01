@@ -1,0 +1,271 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/**
+ * Biometric Authentication Styles
+ * Modern, gradient-based UI for biometric features
+ */
+
+/* Biometric Registration Button */
+.biometric-register-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 10px 0;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.biometric-register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.biometric-register-btn:active {
+    transform: translateY(0);
+}
+
+.biometric-register-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Registered State */
+.biometric-registered-btn {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+    cursor: default !important;
+    box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+}
+
+/* Biometric Publish Button */
+.biometric-publish-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 20px 0 10px 0;
+    width: 100%;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.biometric-publish-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+}
+
+.biometric-publish-btn:active:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.biometric-publish-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* Biometric Indicator (top-right corner) */
+#biometric-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #667eea;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    animation: fadeInSlide 0.5s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Notification Styles */
+.biometric-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    border-radius: 8px;
+    padding: 16px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    max-width: 400px;
+    white-space: pre-line;
+    animation: fadeInSlide 0.3s ease-out;
+}
+
+.biometric-notification.success {
+    border-left: 4px solid #38ef7d;
+}
+
+.biometric-notification.error {
+    border-left: 4px solid #f5576c;
+}
+
+.biometric-notification.warning {
+    border-left: 4px solid #f093fb;
+}
+
+.biometric-notification.info {
+    border-left: 4px solid #667eea;
+}
+
+/* Loading Spinner Animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.biometric-loading {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+/* Biometric Modal (for detailed flows) */
+.biometric-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    z-index: 10001;
+    min-width: 400px;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.biometric-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+.biometric-modal h2 {
+    margin: 0 0 16px 0;
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.biometric-modal p {
+    margin: 0 0 24px 0;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .biometric-modal {
+        min-width: 90%;
+        padding: 24px;
+    }
+    
+    #biometric-indicator {
+        top: 10px;
+        right: 10px;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .biometric-notification {
+        max-width: calc(100% - 40px);
+        right: 20px;
+    }
+}
+
+/* Integration with existing oak-chain publisher */
+#oak-chain-publisher-form .biometric-register-btn,
+#oak-chain-publisher-form .biometric-publish-btn {
+    margin-top: 16px;
+}
+
+/* Accessibility */
+.biometric-register-btn:focus,
+.biometric-publish-btn:focus {
+    outline: 3px solid rgba(102, 126, 234, 0.5);
+    outline-offset: 2px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    #biometric-indicator {
+        background: rgba(30, 30, 30, 0.95);
+        border-color: #764ba2;
+        color: white;
+    }
+    
+    .biometric-notification {
+        background: #2a2a2a;
+        color: white;
+    }
+    
+    .biometric-modal {
+        background: #2a2a2a;
+        color: white;
+    }
+}
+
