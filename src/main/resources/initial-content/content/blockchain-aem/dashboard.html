@@ -259,9 +259,9 @@
             </a>
             <div class="nav-links">
                 <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
-                <a href="/content/blockchain-aem/editor/">Editor</a>
-                <a href="/content/blockchain-aem/viewer/">Viewer</a>
-                <a href="/about.html">About</a>
+                <a href="/content/blockchain-aem/editor.html">Editor</a>
+                <a href="/content/blockchain-aem/viewer.html">Viewer</a>
+                <a href="/bin/browser.html/oak-chain">Browser</a>
             </div>
         </div>
         <div class="user-info">
@@ -281,7 +281,7 @@
         <!-- Action Cards -->
         <div class="cards-grid">
             <!-- Content Editor Card -->
-            <a href="/content/blockchain-aem/editor/" class="action-card">
+            <a href="/content/blockchain-aem/editor.html" class="action-card">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" width="32" height="32">
                         <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -298,7 +298,7 @@
             </a>
             
             <!-- Content Viewer Card -->
-            <a href="/content/blockchain-aem/viewer/" class="action-card">
+            <a href="/content/blockchain-aem/viewer.html" class="action-card">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" width="32" height="32">
                         <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
@@ -314,7 +314,24 @@
                 </span>
             </a>
             
-            <!-- Blockchain Explorer Card -->
+            <!-- Repository Browser Card (CRX DE) -->
+            <a href="/bin/browser.html/oak-chain" class="action-card">
+                <div class="card-icon">
+                    <svg viewBox="0 0 24 24" width="32" height="32">
+                        <path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                    </svg>
+                </div>
+                <h2>Repository Browser</h2>
+                <p>Browse the JCR repository with Composum. Explore oak-chain content, view nodes, and manage properties.</p>
+                <span class="card-link">
+                    Open Browser
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </span>
+            </a>
+            
+            <!-- Validator Dashboard Card -->
             <a href="http://localhost:8090/" target="_blank" class="action-card">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" width="32" height="32">
@@ -345,6 +362,7 @@
             <div class="status-item">
                 <span class="status-label">Oak-Chain Status</span>
                 <span class="status-value" id="oakchain-status">Loading...</span>
+                <span class="status-note" id="oakchain-note" style="font-size: 11px; color: #888;"></span>
             </div>
             <div class="status-item">
                 <span class="status-label">IPFS BlobStore</span>
@@ -354,67 +372,130 @@
     </div>
     
     <script>
-        // Load user wallet on page load
+        // Load user info on page load
+        // NOTE: If this page loads at all, the user IS authenticated (Sling enforces auth on /content/blockchain-aem)
+        // This function just tries to display the username for a nicer UX
         async function loadUserInfo() {
+            const displayEl = document.getElementById('user-wallet');
+            const authStatusEl = document.getElementById('auth-status');
+            
+            // Default to "Authenticated" - if we got here, Sling authenticated us
+            displayEl.textContent = 'Authenticated';
+            authStatusEl.textContent = '✅ Authenticated';
+            
             try {
-                // Use custom session info endpoint that works with Web3 authentication
-                const response = await fetch('/bin/blockchain/session-info');
+                // Try to get username for display purposes only (not for auth check)
+                const response = await fetch('/system/sling/info.sessionInfo.json', {
+                    credentials: 'same-origin'
+                });
+                
                 if (response.ok) {
                     const data = await response.json();
-                    const wallet = data.userID;
-                    
+                    const userID = data.userID;
                     console.log('Session info:', data);
                     
-                    if (wallet && wallet.startsWith('0x')) {
-                        document.getElementById('user-wallet').textContent = 
-                            wallet.substring(0, 6) + '...' + wallet.substring(38);
-                    } else {
-                        // Not authenticated, redirect to login
-                        console.log('User not authenticated (userID does not start with 0x), redirecting to login');
-                        window.location.href = '/starter.html';
+                    if (userID && userID !== 'anonymous') {
+                        // Display user identifier
+                        if (userID.startsWith('0x')) {
+                            displayEl.textContent = userID.substring(0, 6) + '...' + userID.substring(38);
+                            authStatusEl.textContent = '✅ Web3 Wallet';
+                        } else {
+                            displayEl.textContent = userID;
+                            authStatusEl.textContent = '✅ ' + userID;
+                        }
                     }
-                } else {
-                    // Not authenticated
-                    console.log('Session info request failed, redirecting to login');
-                    window.location.href = '/starter.html';
                 }
             } catch (error) {
-                console.error('Failed to load user info:', error);
-                window.location.href = '/starter.html';
+                // Ignore errors - we're already authenticated if we got here
+                console.log('Could not fetch session info for display:', error);
             }
         }
         
         // Load system status
         async function loadStatus() {
+            const validatorUrl = 'http://localhost:8090';
+            
+            // Check blockchain network mode from validator
             try {
-                // Check blockchain network
-                const mode = '<%= System.getenv("OAK_BLOCKCHAIN_MODE") || "mock" %>';
-                document.getElementById('network-status').textContent = mode.toUpperCase();
-                
-                // Check oak-chain
-                const oakResponse = await fetch('http://localhost:8090/v1/status');
+                const configResponse = await fetch(`${validatorUrl}/v1/blockchain/config`);
+                if (configResponse.ok) {
+                    const config = await configResponse.json();
+                    document.getElementById('network-status').textContent = config.mode?.toUpperCase() || 'MOCK';
+                } else {
+                    document.getElementById('network-status').textContent = 'MOCK';
+                }
+            } catch (error) {
+                document.getElementById('network-status').textContent = 'MOCK';
+            }
+            
+            // Check oak-chain via validator /health endpoint
+            try {
+                const oakResponse = await fetch(`${validatorUrl}/health`);
                 if (oakResponse.ok) {
                     const data = await oakResponse.json();
-                    document.getElementById('oakchain-status').textContent = '✅ Connected';
-                    document.getElementById('oakchain-status').classList.add('success');
+                    if (data.status === 'UP' || data.status === 'OK' || data.healthy === true) {
+                        document.getElementById('oakchain-status').textContent = '✅ Connected';
+                        document.getElementById('oakchain-status').classList.add('success');
+                        document.getElementById('oakchain-status').classList.remove('error');
+                        // Show epoch info if available
+                        if (data.committedEpoch !== undefined) {
+                            document.getElementById('oakchain-note').textContent = `Epoch ${data.committedEpoch}`;
+                        }
+                    } else {
+                        document.getElementById('oakchain-status').textContent = '⚠️ Unhealthy';
+                        document.getElementById('oakchain-status').classList.add('error');
+                        document.getElementById('oakchain-status').classList.remove('success');
+                    }
                 } else {
                     document.getElementById('oakchain-status').textContent = '⚠️ Disconnected';
                     document.getElementById('oakchain-status').classList.add('error');
+                    document.getElementById('oakchain-status').classList.remove('success');
+                    document.getElementById('oakchain-note').textContent = 'Lazy mount will auto-connect';
                 }
-                
-                // Check IPFS
-                const ipfsResponse = await fetch('http://127.0.0.1:5001/api/v0/version', {
-                    method: 'POST'
-                });
-                if (ipfsResponse.ok) {
-                    document.getElementById('ipfs-status').textContent = '✅ Connected';
-                    document.getElementById('ipfs-status').classList.add('success');
+            } catch (error) {
+                console.error('Validator health check failed:', error);
+                document.getElementById('oakchain-status').textContent = '⚠️ Disconnected';
+                document.getElementById('oakchain-status').classList.add('error');
+                document.getElementById('oakchain-status').classList.remove('success');
+                document.getElementById('oakchain-note').textContent = 'Lazy mount will auto-connect';
+            }
+            
+            // Check IPFS via validator's /health endpoint (includes blobStoreType)
+            // Direct IPFS API calls fail due to CORS, so we check validator's health
+            try {
+                const healthResponse = await fetch(`${validatorUrl}/health`);
+                if (healthResponse.ok) {
+                    const data = await healthResponse.json();
+                    const blobType = data.blobStoreType || 'default';
+                    const blobActive = data.blobStoreActive;
+                    
+                    if (blobType === 'ipfs') {
+                        if (blobActive) {
+                            document.getElementById('ipfs-status').textContent = '✅ IPFS Active';
+                            document.getElementById('ipfs-status').classList.add('success');
+                            document.getElementById('ipfs-status').classList.remove('error');
+                        } else {
+                            document.getElementById('ipfs-status').textContent = '⚠️ IPFS Configured (Inactive)';
+                            document.getElementById('ipfs-status').classList.add('error');
+                            document.getElementById('ipfs-status').classList.remove('success');
+                        }
+                    } else if (blobType === 's3') {
+                        document.getElementById('ipfs-status').textContent = '☁️ S3 Active';
+                        document.getElementById('ipfs-status').classList.remove('success', 'error');
+                    } else if (blobType === 'azure') {
+                        document.getElementById('ipfs-status').textContent = '☁️ Azure Active';
+                        document.getElementById('ipfs-status').classList.remove('success', 'error');
+                    } else {
+                        document.getElementById('ipfs-status').textContent = '📁 FileStore';
+                        document.getElementById('ipfs-status').classList.remove('success', 'error');
+                    }
                 } else {
-                    document.getElementById('ipfs-status').textContent = '⚠️ Disconnected';
+                    document.getElementById('ipfs-status').textContent = '⚠️ Unknown';
                     document.getElementById('ipfs-status').classList.add('error');
                 }
             } catch (error) {
-                console.error('Failed to load status:', error);
+                console.error('BlobStore status check failed:', error);
+                document.getElementById('ipfs-status').textContent = '⚠️ Unknown';
             }
         }
         
