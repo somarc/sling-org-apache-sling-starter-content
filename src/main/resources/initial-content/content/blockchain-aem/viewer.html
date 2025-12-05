@@ -450,9 +450,22 @@
             animation: pulse-glow 2s infinite;
         }
         
+        .node-badge.genesis {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.3));
+            color: #FFD700;
+            font-weight: 600;
+            border: 1px solid #FFD700;
+            animation: genesis-glow 2s infinite;
+        }
+        
         @keyframes pulse-glow {
             0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 213, 0.3); }
             50% { box-shadow: 0 0 12px rgba(0, 255, 213, 0.6); }
+        }
+        
+        @keyframes genesis-glow {
+            0%, 100% { box-shadow: 0 0 4px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 12px rgba(255, 215, 0, 0.6); }
         }
         
         .tree-node-row.author-shard-row {
@@ -462,6 +475,15 @@
         
         .tree-node-row.author-shard-row:hover {
             background: linear-gradient(90deg, rgba(0, 255, 213, 0.15), var(--bg-hover));
+        }
+        
+        .tree-node-row.genesis-row {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.08), transparent);
+            border-left: 2px solid #FFD700;
+        }
+        
+        .tree-node-row.genesis-row:hover {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), var(--bg-hover));
         }
         
         .node-badge.count {
@@ -1545,11 +1567,25 @@
             refreshBtn.classList.add('loading');
             
             const container = document.getElementById('tree-container');
-            container.innerHTML = '<div style="padding: 20px; color: var(--text-muted);">Loading...</div>';
+            container.innerHTML = `
+                <div style="padding: 24px; color: var(--text-muted); text-align: center;">
+                    <div style="font-size: 24px; margin-bottom: 12px;">📡</div>
+                    <div style="font-weight: 600; margin-bottom: 8px;">Loading oak-chain...</div>
+                    <div style="font-size: 12px; opacity: 0.7;">Fetching journal via HTTP segment transfer</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 4px;">First load may take a few seconds</div>
+                </div>
+            `;
             
             const rootData = await fetchNode(ROOT_PATH);
             if (!rootData) {
-                container.innerHTML = '<div style="padding: 20px; color: var(--error);">Failed to load oak-chain</div>';
+                container.innerHTML = `
+                    <div style="padding: 24px; color: var(--error); text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 12px;">⚠️</div>
+                        <div style="font-weight: 600; margin-bottom: 8px;">Failed to load oak-chain</div>
+                        <div style="font-size: 12px; opacity: 0.7;">Check validator connection or composite mount</div>
+                        <button onclick="location.reload()" style="margin-top: 16px; padding: 8px 16px; background: var(--accent-primary); color: white; border: none; border-radius: 6px; cursor: pointer;">Retry</button>
+                    </div>
+                `;
                 refreshBtn.classList.remove('loading');
                 return;
             }
@@ -1567,7 +1603,7 @@
             container.appendChild(rootNode);
         }
         
-        async function renderTreeNode(path, name, depth, isAuthorShard = false) {
+        async function renderTreeNode(path, name, depth, isAuthorShard = false, isGenesis = false) {
             const node = document.createElement('div');
             node.className = 'tree-node';
             node.dataset.path = path;
@@ -1588,8 +1624,13 @@
                 ? '<span class="node-badge author-shard">⭐ MY SHARD</span>' 
                 : '';
             
+            // Genesis badge
+            const genesisBadge = isGenesis 
+                ? '<span class="node-badge genesis">🎬 GENESIS</span>' 
+                : '';
+            
             node.innerHTML = `
-                <div class="tree-node-row ${isSelected ? 'selected' : ''} ${isAuthorShard ? 'author-shard-row' : ''}" style="--depth: ${depth}">
+                <div class="tree-node-row ${isSelected ? 'selected' : ''} ${isAuthorShard ? 'author-shard-row' : ''} ${isGenesis ? 'genesis-row' : ''}" style="--depth: ${depth}">
                     <span class="tree-toggle ${isExpanded ? 'expanded' : ''} ${!hasChildren ? 'empty' : ''}">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
@@ -1598,6 +1639,7 @@
                     ${getNodeIcon(name, hasChildren, data?.properties)}
                     <span class="node-name">${escapeHtml(name)}</span>
                     ${authorBadge}
+                    ${genesisBadge}
                     ${hasBinary ? '<span class="node-badge ipfs">IPFS</span>' : ''}
                     ${hasChildren ? `<span class="node-badge count">${data.children.length}</span>` : ''}
                 </div>
@@ -1651,7 +1693,7 @@
             
             container.innerHTML = '';
             
-            // Sort children: author's shard first, then alphabetically
+            // Sort children: author's shard first, genesis after, then alphabetically
             let sortedChildren = [...parentData.children];
             
             // Only sort shards at the oak-chain root level
@@ -1660,7 +1702,19 @@
                     // Author's shard goes first
                     if (a === authorShard) return -1;
                     if (b === authorShard) return 1;
+                    // Genesis goes second (if it exists)
+                    if (a.toLowerCase() === 'genesis' || a.startsWith('00')) return -1;
+                    if (b.toLowerCase() === 'genesis' || b.startsWith('00')) return 1;
                     // Then alphabetically
+                    return a.localeCompare(b);
+                });
+            }
+            
+            // Also sort at content level to pin genesis
+            if (parentPath.endsWith('/content') && parentData.children.includes('genesis')) {
+                sortedChildren.sort((a, b) => {
+                    if (a === 'genesis') return -1;
+                    if (b === 'genesis') return 1;
                     return a.localeCompare(b);
                 });
             }
@@ -1679,7 +1733,14 @@
                 // Check if this is the author's shard
                 const isAuthorShard = (parentPath === ROOT_PATH && childName === authorShard);
                 
-                const childNode = await renderTreeNode(childPath, childName, depth, isAuthorShard);
+                // Check if this is genesis content
+                const isGenesis = (
+                    childName.toLowerCase() === 'genesis' || 
+                    childName.startsWith('00') ||  // Genesis shard (00)
+                    childPath.includes('/genesis/')
+                );
+                
+                const childNode = await renderTreeNode(childPath, childName, depth, isAuthorShard, isGenesis);
                 container.appendChild(childNode);
             }
         }
@@ -2015,10 +2076,11 @@
             // Generate preview HTML based on mime type
             if (previewUrl && mimeType) {
                 if (mimeType.startsWith('image/')) {
+                    const downloadBtn = oakBlobId ? `<a href=\\'${VALIDATOR_URL}/api/binary/${oakBlobId}\\' target=\\'_blank\\' style=\\'display:inline-block;margin-top:16px;padding:8px 16px;background:var(--accent-primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;\\'>📥 Download via Validator</a>` : '';
                     previewHtml = `
                         <img src="${previewUrl}" alt="Binary preview" 
                              onload="this.parentElement.classList.add('loaded')"
-                             onerror="this.parentElement.innerHTML='<div class=\\'binary-placeholder error\\'><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><p>Failed to load image</p><p class=\\'hint\\'>Try opening directly via gateway</p></div>'"/>
+                             onerror="this.parentElement.innerHTML='<div class=\\'binary-placeholder error\\'><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><p>Image Loading...</p><p class=\\'hint\\'>Fetching from validator or IPFS gateway</p>${downloadBtn}</div>'"/>
                     `;
                 } else if (mimeType.startsWith('video/')) {
                     previewHtml = `<video controls src="${previewUrl}" style="max-width: 100%; max-height: 400px; border-radius: 8px;"></video>`;
