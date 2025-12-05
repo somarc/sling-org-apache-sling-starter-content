@@ -1,0 +1,736 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publish | Blockchain AEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyberpunk-inspired dark theme with teal/cyan accents */
+            --bg-deep: #0a0e14;
+            --bg-surface: #111820;
+            --bg-elevated: #1a222e;
+            --bg-hover: #252f3f;
+            
+            --accent-primary: #00ffd5;
+            --accent-secondary: #00a3cc;
+            --accent-tertiary: #7c3aed;
+            --accent-gold: #ffd700;
+            --accent-glow: rgba(0, 255, 213, 0.15);
+            
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 255, 213, 0.3);
+            
+            --success: #3fb950;
+            --warning: #f0b429;
+            --error: #f85149;
+            --info: #58a6ff;
+            
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            --shadow-glow: 0 0 40px rgba(0, 255, 213, 0.1);
+            --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        /* Animated background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 255, 213, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Top Navigation Bar */
+        .top-bar {
+            height: 56px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .brand-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-deep);
+        }
+        
+        .brand-text span {
+            color: var(--accent-primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        
+        .nav-links a.active {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .status-indicators {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .status-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+        
+        .status-dot.online .dot {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+        
+        .mode-badge {
+            padding: 4px 12px;
+            background: var(--accent-glow);
+            color: var(--accent-primary);
+            border-radius: var(--radius-sm);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+        }
+        
+        /* Magazine Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Genesis Hero Article */
+        .hero-article {
+            margin-bottom: 80px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            box-shadow: var(--shadow-elevated);
+        }
+        
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        
+        .hero-image-container {
+            width: 100%;
+            height: 500px;
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .hero-article:hover .hero-image {
+            transform: scale(1.05);
+        }
+        
+        .image-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-deep);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .hero-content {
+            padding: 48px;
+        }
+        
+        .hero-content h1 {
+            font-size: 48px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .hero-excerpt {
+            font-size: 20px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        
+        .hero-properties {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 24px;
+            background: var(--bg-deep);
+            border-radius: var(--radius-md);
+        }
+        
+        .property-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .property-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .property-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+        }
+        
+        .property-value.highlight {
+            color: var(--accent-primary);
+        }
+        
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+        
+        .content-card {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-elevated);
+            border-color: var(--border-accent);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 220px;
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .card-content {
+            padding: 24px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .card-excerpt {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .card-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        /* Loading State */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px solid var(--bg-hover);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 80px;
+        }
+        
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 32px 16px; }
+            .hero-content { padding: 32px 24px; }
+            .hero-content h1 { font-size: 32px; }
+            .hero-excerpt { font-size: 16px; }
+            .content-grid { grid-template-columns: 1fr; }
+            .hero-properties { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation (injected by shared component) -->
+    <div id="blockchain-aem-header"></div>
+    <script src="/apps/blockchain-aem/components/header.js"></script>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Loading State -->
+        <div class="loading-container" id="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading published content from blockchain...</div>
+        </div>
+        
+        <!-- Content Container -->
+        <div id="content-container" style="display: none;">
+            <!-- Genesis Hero Article -->
+            <article class="hero-article" id="genesis-article">
+                <!-- Content loaded dynamically -->
+            </article>
+            
+            <!-- Other Content Grid -->
+            <div class="content-grid" id="content-grid">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3>No Published Content Yet</h3>
+            <p>Content from oak-chain will appear here once created</p>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 Blockchain AEM • Powered by <a href="https://github.com/apache/jackrabbit-oak" target="_blank">Apache Jackrabbit Oak</a></p>
+    </div>
+    
+    <script>
+        const VALIDATOR_URL = 'http://localhost:8090';
+        
+        // Initialize
+        async function init() {
+            await loadGenesisContent();
+            await loadOtherContent();
+            
+            // Update UI state
+            document.getElementById('loading').style.display = 'none';
+            const hasContent = document.getElementById('genesis-article').innerHTML || 
+                              document.getElementById('content-grid').innerHTML;
+            
+            if (hasContent) {
+                document.getElementById('content-container').style.display = 'block';
+            } else {
+                document.getElementById('empty-state').style.display = 'block';
+            }
+            
+            checkValidatorStatus();
+        }
+        
+        // Load Genesis Content
+        async function loadGenesisContent() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/api/explore-node?path=/oak-chain/content/00/00/00/0x0000000000000000000000000000000000000000/content/genesis`);
+                const data = await response.json();
+                
+                if (data.exists && data.properties) {
+                    renderGenesisHero(data);
+                }
+            } catch (error) {
+                console.error('Error loading genesis:', error);
+            }
+        }
+        
+        // Render Genesis as Hero Article
+        function renderGenesisHero(data) {
+            const props = data.properties;
+            const children = data.children || [];
+            
+            // Find the image node
+            const imageNode = children.find(c => c.name === 'do-it-live.jpeg');
+            let imageSrc = null;
+            let blobId = null;
+            
+            if (imageNode) {
+                // Try to get blob ID from properties
+                const imageProps = imageNode.properties || {};
+                if (imageProps['jcr:blobId']) {
+                    blobId = imageProps['jcr:blobId'].value;
+                    // Try IPFS first, then fallback to Oak BlobStore
+                    if (blobId.startsWith('Qm') || blobId.startsWith('bafy')) {
+                        imageSrc = `https://ipfs.io/ipfs/${blobId}`;
+                    } else {
+                        imageSrc = `${VALIDATOR_URL}/api/blob/${blobId}`;
+                    }
+                }
+            }
+            
+            const protocolMessage = props['protocol']?.children?.find(c => c.name === 'message')?.value || 
+                                  props['jcr:title']?.value || 
+                                  'OakChain Genesis Block';
+            
+            const tagline = props['tagline']?.value || 
+                          'The birth certificate of this decentralized content network';
+            
+            const created = props['jcr:created']?.value || Date.now();
+            const createdDate = new Date(parseInt(created)).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const html = `
+                <div class="hero-image-container">
+                    ${imageSrc ? `
+                        <img src="${imageSrc}" alt="Genesis Image" class="hero-image" 
+                             onload="this.previousElementSibling?.remove()"
+                             onerror="handleImageError(this, '${blobId}')">
+                        <div class="image-loading">Loading image...</div>
+                    ` : `
+                        <div class="image-loading">🎬 Genesis Block</div>
+                    `}
+                </div>
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        🎬 GENESIS BLOCK
+                    </div>
+                    <h1>${protocolMessage}</h1>
+                    <div class="hero-meta">
+                        <div class="meta-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            ${createdDate}
+                        </div>
+                        <div class="meta-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>
+                            </svg>
+                            0x0000...0000
+                        </div>
+                        <div class="meta-item">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                            </svg>
+                            Block #0
+                        </div>
+                    </div>
+                    <div class="hero-excerpt">
+                        ${tagline}
+                    </div>
+                    <div class="hero-properties">
+                        <div class="property-item">
+                            <div class="property-label">Chain ID</div>
+                            <div class="property-value highlight">oak-blockchain-aem-poc</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Protocol</div>
+                            <div class="property-value">Aeron Raft Consensus</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Storage</div>
+                            <div class="property-value">IPFS + Oak Segments</div>
+                        </div>
+                        <div class="property-item">
+                            <div class="property-label">Network</div>
+                            <div class="property-value">Decentralized P2P</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('genesis-article').innerHTML = html;
+        }
+        
+        // Handle image error with fallback
+        function handleImageError(img, blobId) {
+            if (img.src.includes('ipfs')) {
+                // Try Oak BlobStore fallback
+                img.src = `${VALIDATOR_URL}/api/blob/${blobId}`;
+            } else {
+                // Show placeholder
+                img.parentElement.innerHTML = '<div class="image-loading">🎬 Genesis Block</div>';
+            }
+        }
+        
+        // Load other content from oak-chain
+        async function loadOtherContent() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/api/explore-node?path=/oak-chain/content`);
+                const data = await response.json();
+                
+                if (data.exists && data.children) {
+                    // Filter out genesis shard (00) and render other content
+                    const otherShards = data.children.filter(c => c.name !== '00');
+                    
+                    if (otherShards.length > 0) {
+                        renderContentGrid(otherShards);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading content:', error);
+            }
+        }
+        
+        // Render content grid
+        function renderContentGrid(shards) {
+            const grid = document.getElementById('content-grid');
+            // For now, show a "coming soon" message
+            // In the future, this will render actual published content
+            grid.innerHTML = '';
+        }
+        
+        // Check validator status
+        async function checkValidatorStatus() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/`);
+                const statusEl = document.getElementById('validator-status');
+                if (response.ok) {
+                    statusEl.classList.add('online');
+                }
+            } catch (error) {
+                console.log('Validator offline');
+            }
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
+

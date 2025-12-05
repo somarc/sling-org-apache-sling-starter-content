@@ -697,40 +697,9 @@
     </style>
 </head>
 <body>
-    <!-- Top Navigation -->
-    <nav class="top-bar">
-        <div class="brand">
-            <div class="brand-icon">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.5L19 8l-7 3.5L5 8l7-3.5zM4 9.17l7 3.5v7.16l-7-3.5V9.17zm9 10.66v-7.16l7-3.5v7.16l-7 3.5z"/>
-                </svg>
-            </div>
-            <div class="brand-text">Blockchain <span>AEM</span></div>
-        </div>
-        
-        <div class="nav-links">
-            <a href="/content/blockchain-aem/dashboard.html" class="active">Dashboard</a>
-            <a href="/content/blockchain-aem/editor.html">Editor</a>
-            <a href="/content/blockchain-aem/viewer.html">Viewer</a>
-        </div>
-        
-        <div class="user-section">
-            <div class="status-indicators">
-                <div class="status-dot" id="validator-status" title="Validator connection">
-                    <span class="dot"></span>
-                    <span>Validator</span>
-                </div>
-                <div class="status-dot" id="ipfs-status" title="IPFS connection">
-                    <span class="dot"></span>
-                    <svg class="ipfs-logo" width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
-                        <path d="M255.9 33L53 127.4v257.2L255.9 479l202.9-94.4V127.4L255.9 33zm0 30.2l165.4 77-165.4 77-165.4-77 165.4-77zM75.5 160l165.4 77v179.4L75.5 339.3V160zm361 0v179.3l-165.4 77.1V239l165.4-79z"/>
-                    </svg>
-                </div>
-            </div>
-            <span class="mode-badge" id="mode-badge">MOCK</span>
-            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
-        </div>
-    </nav>
+    <!-- Top Navigation (injected by shared component) -->
+    <div id="blockchain-aem-header"></div>
+    <script src="/apps/blockchain-aem/components/header.js"></script>
     
     <!-- Main Content -->
     <div class="container">
