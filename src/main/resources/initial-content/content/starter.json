@@ -1,9 +1,6 @@
 {
-    "sling:resourceType": "sling/starter/home",
+    "sling:resourceType": "blockchain-aem/pages/login",
     "jcr:primaryType": "sling:Folder",
-    "sidebar-extensions": {
-        "sling:resourceType": "sling/starter/sidebar-extensions",
-        "jcr:primaryType": "sling:Folder"
-    }
+    "jcr:title": "Blockchain AEM Login"
 }
 

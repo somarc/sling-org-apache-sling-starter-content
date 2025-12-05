@@ -1,0 +1,1364 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Editor | Blockchain AEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyberpunk-inspired dark theme with teal/cyan accents */
+            --bg-deep: #0a0e14;
+            --bg-surface: #111820;
+            --bg-elevated: #1a222e;
+            --bg-hover: #252f3f;
+            --bg-input: #0d1117;
+            
+            --accent-primary: #00ffd5;
+            --accent-secondary: #00a3cc;
+            --accent-tertiary: #7c3aed;
+            --accent-glow: rgba(0, 255, 213, 0.15);
+            
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 255, 213, 0.3);
+            --border-focus: rgba(0, 255, 213, 0.5);
+            
+            --success: #3fb950;
+            --warning: #f0b429;
+            --error: #f85149;
+            --info: #58a6ff;
+            
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 30% 10%, rgba(0, 255, 213, 0.03) 0%, transparent 40%),
+                radial-gradient(ellipse at 70% 90%, rgba(124, 58, 237, 0.03) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Top Navigation Bar */
+        .top-bar {
+            height: 56px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+        }
+        
+        .brand-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-deep);
+        }
+        
+        .brand-text {
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .brand-text span {
+            color: var(--accent-primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        
+        .nav-links a.active {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mode-badge {
+            padding: 6px 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .mode-badge.mock { color: var(--warning); border-color: rgba(240, 180, 41, 0.3); }
+        .mode-badge.sepolia { color: var(--info); border-color: rgba(88, 166, 255, 0.3); }
+        .mode-badge.mainnet { color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
+        
+        /* Status Indicators */
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 8px;
+        }
+        
+        .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .status-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .status-dot.connected .dot {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+        
+        .status-dot.connected {
+            color: var(--text-secondary);
+        }
+        
+        .status-dot.error .dot {
+            background: var(--error);
+            box-shadow: 0 0 8px var(--error);
+        }
+        
+        .status-dot.error {
+            color: var(--error);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 40px 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .editor-container {
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        /* Editor Header */
+        .editor-header {
+            margin-bottom: 32px;
+        }
+        
+        .editor-title {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .editor-title svg {
+            color: var(--accent-primary);
+        }
+        
+        .editor-subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .storage-path {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .storage-path strong {
+            color: var(--accent-primary);
+        }
+        
+        /* Form Styles */
+        .editor-form {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            padding: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-label .required {
+            color: var(--error);
+            margin-left: 4px;
+        }
+        
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            color: var(--text-primary);
+            transition: all 0.15s ease;
+        }
+        
+        .form-input:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        
+        .form-input::placeholder,
+        .form-textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+        
+        .form-hint code {
+            background: var(--bg-elevated);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+        
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .file-upload-area.dragover {
+            border-color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            color: var(--text-muted);
+        }
+        
+        .file-upload-text {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .file-upload-text strong {
+            color: var(--accent-primary);
+        }
+        
+        .file-preview {
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            display: none;
+        }
+        
+        .file-preview.active {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .file-size {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .file-remove {
+            padding: 8px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+        
+        .file-remove:hover {
+            color: var(--error);
+            background: rgba(248, 81, 73, 0.15);
+        }
+        
+        /* Tier Selection */
+        .tier-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        
+        .tier-option {
+            position: relative;
+        }
+        
+        .tier-option input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .tier-card {
+            padding: 20px 16px;
+            background: var(--bg-elevated);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .tier-option input:checked + .tier-card {
+            border-color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .tier-card:hover {
+            border-color: var(--text-muted);
+        }
+        
+        .tier-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .tier-time {
+            font-size: 12px;
+            color: var(--accent-primary);
+            margin-bottom: 4px;
+        }
+        
+        .tier-cost {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        
+        .tier-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+        }
+        
+        .btn-primary {
+            flex: 1;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--bg-deep);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 213, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-danger {
+            background: rgba(248, 81, 73, 0.15);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+            color: var(--error);
+        }
+        
+        .btn-danger:hover {
+            background: rgba(248, 81, 73, 0.25);
+        }
+        
+        /* Status Messages */
+        .status-container {
+            margin-top: 24px;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            display: none;
+        }
+        
+        .status-container.active {
+            display: block;
+        }
+        
+        .status-container.success {
+            background: rgba(63, 185, 80, 0.15);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+        
+        .status-container.error {
+            background: rgba(248, 81, 73, 0.15);
+            border: 1px solid rgba(248, 81, 73, 0.3);
+        }
+        
+        .status-container.info {
+            background: rgba(88, 166, 255, 0.15);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+        
+        .status-message {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .status-container.success .status-message { color: var(--success); }
+        .status-container.error .status-message { color: var(--error); }
+        .status-container.info .status-message { color: var(--info); }
+        
+        .status-details {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 16px 24px;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        
+        .footer-info {
+            display: flex;
+            gap: 24px;
+        }
+        
+        .footer-info strong {
+            color: var(--text-secondary);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content { padding: 24px 16px; }
+            .editor-form { padding: 24px; }
+            .tier-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .footer-info { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-bar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.5L19 8l-7 3.5L5 8l7-3.5zM4 9.17l7 3.5v7.16l-7-3.5V9.17zm9 10.66v-7.16l7-3.5v7.16l-7 3.5z"/>
+                </svg>
+            </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
+            <a href="/content/blockchain-aem/editor.html" class="active">Editor</a>
+            <a href="/content/blockchain-aem/viewer.html">Viewer</a>
+        </div>
+        
+        <div class="user-section">
+            <div class="status-indicators">
+                <div class="status-dot" id="validator-status" title="Validator connection">
+                    <span class="dot"></span>
+                    <span>Validator</span>
+                </div>
+                <div class="status-dot" id="ipfs-status" title="IPFS connection">
+                    <span class="dot"></span>
+                    <span>IPFS</span>
+                </div>
+            </div>
+            <span class="mode-badge" id="mode-badge">MOCK</span>
+            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="editor-container">
+            <!-- Editor Header -->
+            <div class="editor-header">
+                <h1 class="editor-title">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                    Content Editor
+                </h1>
+                <p class="editor-subtitle">Create and publish content to the distributed oak-chain</p>
+                <div class="storage-path" id="storage-path">
+                    Storage: <strong>/oak-chain/{wallet-shard}/{wallet}/content/{organization}</strong>
+                </div>
+            </div>
+            
+            <!-- Editor Form -->
+            <form id="content-form" class="editor-form">
+                <!-- Organization -->
+                <div class="form-group">
+                    <label class="form-label" for="organization">
+                        Organization <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="organization"
+                        name="organization" 
+                        class="form-input" 
+                        placeholder="e.g., adobe, my-company"
+                        required
+                    >
+                    <p class="form-hint">Content will be stored at: <code>/oak-chain/{wallet-shard}/{wallet}/content/<strong>organization</strong></code></p>
+                </div>
+                
+                <!-- Title -->
+                <div class="form-group">
+                    <label class="form-label" for="title">
+                        Title <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="title"
+                        name="title" 
+                        class="form-input" 
+                        placeholder="Enter a compelling title..."
+                        required
+                    >
+                </div>
+                
+                <!-- Date -->
+                <div class="form-group">
+                    <label class="form-label" for="date">
+                        Publication Date <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="date" 
+                        id="date"
+                        name="date" 
+                        class="form-input" 
+                        required
+                    >
+                </div>
+                
+                <!-- Author -->
+                <div class="form-group">
+                    <label class="form-label" for="author">
+                        Author <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="author"
+                        name="author" 
+                        class="form-input" 
+                        placeholder="Author name..."
+                        required
+                    >
+                </div>
+                
+                <!-- Message/Abstract -->
+                <div class="form-group">
+                    <label class="form-label" for="message">
+                        Message <span class="required">*</span>
+                    </label>
+                    <textarea 
+                        id="message"
+                        name="message" 
+                        class="form-textarea" 
+                        rows="6"
+                        placeholder="Enter your content message..."
+                        required
+                    ></textarea>
+                    <p class="form-hint">This will be signed with your wallet and stored on-chain</p>
+                </div>
+                
+                <!-- Binary Upload -->
+                <div class="form-group">
+                    <label class="form-label" for="binary-file">
+                        Binary Attachment (Optional)
+                    </label>
+                    <div class="file-upload-area" id="file-drop-zone">
+                        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        <p class="file-upload-text">
+                            <strong>Click to upload</strong> or drag and drop<br>
+                            Images, videos, PDFs up to 50MB
+                        </p>
+                        <input type="file" id="binary-file" name="binaryFile" style="display: none;" accept="image/*,video/*,audio/*,.pdf">
+                    </div>
+                    <div class="file-preview" id="file-preview">
+                        <img id="preview-img" src="" alt="Preview">
+                        <div class="file-info">
+                            <div class="file-name" id="file-name"></div>
+                            <div class="file-size" id="file-size"></div>
+                        </div>
+                        <button type="button" class="file-remove" id="file-remove">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                <line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="form-hint">Binary files are stored on IPFS and referenced by CID</p>
+                </div>
+                
+                <!-- Tier Selection -->
+                <div class="form-group">
+                    <label class="form-label">Publication Tier</label>
+                    <div class="tier-grid">
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="0" checked>
+                            <div class="tier-card">
+                                <div class="tier-name">Standard</div>
+                                <div class="tier-time">≤ 13 minutes</div>
+                                <div class="tier-cost">~$0.02</div>
+                                <div class="tier-desc">For evergreen content</div>
+                            </div>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="1">
+                            <div class="tier-card">
+                                <div class="tier-name">Express</div>
+                                <div class="tier-time">≤ 6.5 minutes</div>
+                                <div class="tier-cost">~$0.04</div>
+                                <div class="tier-desc">For daily updates</div>
+                            </div>
+                        </label>
+                        <label class="tier-option">
+                            <input type="radio" name="tier" value="2">
+                            <div class="tier-card">
+                                <div class="tier-name">Priority</div>
+                                <div class="tier-time">≤ 45 seconds</div>
+                                <div class="tier-cost">~$0.20</div>
+                                <div class="tier-desc">For breaking news</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="form-actions">
+                    <button type="button" id="publish-btn" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                        </svg>
+                        Publish to Oak-Chain
+                    </button>
+                </div>
+                
+                <!-- Status Messages -->
+                <div id="status-container" class="status-container">
+                    <div id="status-message" class="status-message"></div>
+                    <div id="status-details" class="status-details"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-info">
+            <span>Validator: <strong id="validator-url">localhost:8090</strong></span>
+            <span>Network: <strong id="network-name">Loading...</strong></span>
+        </div>
+        <span>© 2025 Blockchain AEM</span>
+    </footer>
+    
+    <script>
+        const VALIDATOR_URL = 'http://localhost:8090';
+        let selectedFile = null;
+        let walletAddress = null;
+        
+        // ============================================
+        // File Upload Handling
+        // ============================================
+        
+        const dropZone = document.getElementById('file-drop-zone');
+        const fileInput = document.getElementById('binary-file');
+        const filePreview = document.getElementById('file-preview');
+        const previewImg = document.getElementById('preview-img');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const fileRemove = document.getElementById('file-remove');
+        
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handleFile(e.target.files[0]);
+            }
+        });
+        
+        fileRemove.addEventListener('click', () => {
+            selectedFile = null;
+            filePreview.classList.remove('active');
+            fileInput.value = '';
+        });
+        
+        function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatBytes(file.size);
+            
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.style.display = 'none';
+            }
+            
+            filePreview.classList.add('active');
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        // ============================================
+        // Sling Author Wallet (Content Owner)
+        // ============================================
+        
+        // The Sling Author has its own Ethereum wallet for content ownership
+        // This is separate from MetaMask which is only used for payment
+        
+        async function loadSlingAuthorWallet() {
+            try {
+                const response = await fetch('/bin/blockchain/content-owner', {
+                    credentials: 'same-origin'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.address && data.address.startsWith('0x')) {
+                        walletAddress = data.address;
+                        updateWalletDisplay(walletAddress);
+                        updateStoragePath(walletAddress);
+                        console.log('✅ Sling Author wallet loaded:', walletAddress);
+                        return walletAddress;
+                    }
+                } else {
+                    console.warn('Content owner endpoint returned:', response.status);
+                }
+            } catch (error) {
+                console.error('Failed to load Sling Author wallet:', error);
+            }
+            return null;
+        }
+        
+        function updateWalletDisplay(wallet) {
+            // Just log the wallet - avatar shows authenticated user, not wallet
+            if (wallet && wallet.startsWith('0x')) {
+                console.log('Content Owner wallet:', wallet);
+            }
+        }
+        
+        // Load authenticated user info for avatar display
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/system/sling/info.sessionInfo.json', {
+                    credentials: 'same-origin'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const userID = data.userID;
+                    const avatar = document.getElementById('user-avatar');
+                    
+                    if (userID && userID !== 'anonymous') {
+                        // Show first letter of username (or first 2 chars of wallet if it's a 0x address)
+                        if (userID.startsWith('0x')) {
+                            avatar.textContent = userID.substring(2, 4).toUpperCase();
+                        } else {
+                            avatar.textContent = userID.charAt(0).toUpperCase();
+                        }
+                        avatar.title = `Logged in as: ${userID}`;
+                    }
+                }
+            } catch (error) {
+                console.log('Could not load user info:', error);
+            }
+        }
+        
+        function updateStoragePath(wallet) {
+            const storageEl = document.getElementById('storage-path');
+            
+            if (!wallet || !wallet.startsWith('0x') || wallet.length < 42) {
+                storageEl.innerHTML = 
+                    `Storage: <strong>/oak-chain/{wallet-shard}/{wallet}/content/{organization}</strong>`;
+                return;
+            }
+            
+            // Proper shard calculation: first 2 hex chars after 0x, then next 2, then next 2
+            const shard1 = wallet.substring(2, 4).toLowerCase();
+            const shard2 = wallet.substring(4, 6).toLowerCase();
+            const shard3 = wallet.substring(6, 8).toLowerCase();
+            const walletLower = wallet.toLowerCase();
+            const org = document.getElementById('organization').value || '{organization}';
+            
+            storageEl.innerHTML = 
+                `Storage: <strong>/oak-chain/${shard1}/${shard2}/${shard3}/${walletLower}/content/${org}</strong>`;
+        }
+        
+        document.getElementById('organization').addEventListener('input', () => {
+            if (walletAddress) updateStoragePath(walletAddress);
+        });
+        
+        async function loadNetworkStatus() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
+                if (response.ok) {
+                    const config = await response.json();
+                    const mode = config.mode?.toUpperCase() || 'MOCK';
+                    const modeBadge = document.getElementById('mode-badge');
+                    modeBadge.textContent = mode;
+                    modeBadge.className = `mode-badge ${mode.toLowerCase()}`;
+                    document.getElementById('network-name').textContent = mode;
+                }
+            } catch (error) {
+                document.getElementById('network-name').textContent = 'MOCK';
+            }
+        }
+        
+        // ============================================
+        // Service Status Checks
+        // ============================================
+        
+        async function checkValidatorStatus() {
+            const statusEl = document.getElementById('validator-status');
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/health`, { 
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.className = 'status-dot connected';
+                    statusEl.title = `Validator: ${data.status || 'UP'}\nStore: ${data.store || 'N/A'}`;
+                    return true;
+                }
+            } catch (error) {
+                console.log('Validator check failed:', error.message);
+            }
+            statusEl.className = 'status-dot error';
+            statusEl.title = 'Validator: Not connected';
+            return false;
+        }
+        
+        async function checkIpfsStatus() {
+            const statusEl = document.getElementById('ipfs-status');
+            try {
+                // Check via validator's health endpoint which includes IPFS status
+                const response = await fetch(`${VALIDATOR_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.blobStoreType === 'ipfs' && data.blobStoreActive) {
+                        statusEl.className = 'status-dot connected';
+                        statusEl.title = 'IPFS: Connected via validator';
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('IPFS check failed:', error.message);
+            }
+            statusEl.className = 'status-dot error';
+            statusEl.title = 'IPFS: Not connected';
+            return false;
+        }
+        
+        async function checkAllServices() {
+            await Promise.all([
+                checkValidatorStatus(),
+                checkIpfsStatus()
+            ]);
+        }
+        
+        // Check services periodically
+        setInterval(checkAllServices, 10000); // Every 10 seconds
+        
+        // ============================================
+        // Publishing
+        // ============================================
+        
+        // Track proposal status by polling the validator
+        // Polling intervals are mode-aware:
+        // - MOCK: 30s epochs, poll every 5s, timeout after 2 minutes
+        // - SEPOLIA/MAINNET: ~6.4 min epochs, poll every 15s, timeout after 10 minutes
+        async function trackProposalStatus(proposalId, contentPath) {
+            // First, get the blockchain mode to determine polling strategy
+            let mode = 'mock';
+            let pollInterval = 5000;   // 5s for mock
+            let maxAttempts = 24;      // 24 * 5s = 2 minutes for mock
+            let epochInfo = '~30 seconds';
+            
+            try {
+                const configResponse = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
+                if (configResponse.ok) {
+                    const config = await configResponse.json();
+                    mode = (config.mode || 'mock').toLowerCase();
+                    
+                    if (mode === 'sepolia' || mode === 'mainnet') {
+                        pollInterval = 15000;  // 15s for real chains
+                        maxAttempts = 40;      // 40 * 15s = 10 minutes
+                        epochInfo = '~6.4 minutes (Ethereum epoch)';
+                    }
+                }
+            } catch (e) {
+                console.log('Could not fetch blockchain config, using mock defaults');
+            }
+            
+            let attempts = 0;
+            
+            const poll = async () => {
+                attempts++;
+                try {
+                    const response = await fetch(`${VALIDATOR_URL}/v1/proposals/${proposalId}/status`);
+                    if (response.ok) {
+                        const status = await response.json();
+                        const state = status.state || 'UNKNOWN';
+                        
+                        if (state === 'VERIFIED' || state === 'COMMITTED' || state === 'REPLICATED') {
+                            showStatus('success', '✓ Content published to Oak-Chain!', 
+                                `Status: ${state}\nPath: ${contentPath}\nProposal ID: ${proposalId}\n\n✅ Your content is now available in the Viewer!`);
+                            return; // Done!
+                        } else if (state === 'REJECTED' || state === 'FAILED' || state === 'TIMEOUT') {
+                            showStatus('error', 'Proposal rejected', 
+                                `Status: ${state}\nReason: ${status.rejectionReason || 'Unknown'}\nProposal ID: ${proposalId}`);
+                            return; // Done with error
+                        } else if (state === 'PENDING' || state === 'SUBMITTED') {
+                            const timeRemaining = Math.ceil((maxAttempts - attempts) * pollInterval / 1000);
+                            showStatus('info', '⏳ Waiting for epoch confirmation...', 
+                                `Status: ${state}\nMode: ${mode.toUpperCase()}\nEpoch cycle: ${epochInfo}\nPath: ${contentPath}\n\nTracking... (${timeRemaining}s remaining)`);
+                        } else {
+                            showStatus('info', `📋 Proposal status: ${state}`, 
+                                `Path: ${contentPath}\nProposal ID: ${proposalId}`);
+                        }
+                    } else if (response.status === 404) {
+                        // Proposal not found yet - might still be processing
+                        showStatus('info', '⏳ Proposal queued...', 
+                            `Mode: ${mode.toUpperCase()}\nEpoch cycle: ${epochInfo}\nPath: ${contentPath}\n\nWaiting for validator to process...`);
+                    }
+                } catch (error) {
+                    console.log('Status check error:', error);
+                }
+                
+                // Continue polling if not done
+                if (attempts < maxAttempts) {
+                    setTimeout(poll, pollInterval);
+                } else {
+                    showStatus('info', '⏱️ Tracking complete', 
+                        `Path: ${contentPath}\nProposal ID: ${proposalId}\n\nContent should appear in the Viewer after the next epoch.\nIn ${mode.toUpperCase()} mode, epochs occur every ${epochInfo}.`);
+                }
+            };
+            
+            // Start polling after a short delay
+            setTimeout(poll, 1000);
+        }
+        
+        function showStatus(type, message, details = '') {
+            const container = document.getElementById('status-container');
+            const msgEl = document.getElementById('status-message');
+            const detailsEl = document.getElementById('status-details');
+            
+            container.className = `status-container active ${type}`;
+            msgEl.textContent = message;
+            detailsEl.textContent = details;
+        }
+        
+        document.getElementById('publish-btn').addEventListener('click', async () => {
+            const form = document.getElementById('content-form');
+            const publishBtn = document.getElementById('publish-btn');
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // Ensure Sling Author wallet is loaded
+            if (!walletAddress || !walletAddress.startsWith('0x')) {
+                showStatus('info', 'Loading Sling Author wallet...', 'Please wait...');
+                const loaded = await loadSlingAuthorWallet();
+                if (!loaded) {
+                    showStatus('error', 'Wallet Not Available', 
+                        'The Sling Author wallet service is not available. Check that the blockchain-aem-content bundle is active.');
+                    return;
+                }
+            }
+            
+            publishBtn.disabled = true;
+            publishBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> Publishing...';
+            
+            try {
+                showStatus('info', 'Preparing content...', `Content Owner: ${walletAddress.substring(0, 10)}...`);
+                
+                // Use the Sling Author's wallet (content owner)
+                const wallet = walletAddress;
+                
+                // Get form values
+                const organization = document.getElementById('organization').value;
+                const title = document.getElementById('title').value;
+                const date = document.getElementById('date').value;
+                const author = document.getElementById('author').value;
+                const messageText = document.getElementById('message').value;
+                const tier = document.querySelector('input[name="tier"]:checked').value;
+                
+                // Build message as pipe-delimited key=value pairs
+                // Format: "title=My Title|author=John|content=Hello World|tier=standard"
+                const messageParts = [];
+                if (title) messageParts.push(`title=${title}`);
+                if (author) messageParts.push(`author=${author}`);
+                if (messageText) messageParts.push(`content=${messageText}`);
+                if (date) messageParts.push(`date=${date}`);
+                if (tier) messageParts.push(`tier=${tier}`);
+                messageParts.push(`timestamp=${Date.now()}`);
+                const messageString = messageParts.join('|');
+                
+                // ============================================================
+                // MULTIPART FORM DATA (preferred for binary uploads)
+                // No base64 encoding needed - binary goes directly!
+                // Future: ADR 016 (client IPFS), ADR 020 (lazy upload)
+                // ============================================================
+                const formData = new FormData();
+                formData.append('walletAddress', wallet);
+                formData.append('message', messageString);
+                formData.append('contentType', organization || 'page');
+                formData.append('signature', '0xmock_' + Date.now());
+                formData.append('ethereumTxHash', '0xmock_tx_' + Date.now());
+                formData.append('paymentTier', tier);
+                
+                // Add binary file directly (no base64 encoding!)
+                if (selectedFile) {
+                    showStatus('info', 'Uploading binary...', `${selectedFile.name} (${formatBytes(selectedFile.size)})`);
+                    formData.append('binaryFile', selectedFile, selectedFile.name);
+                    
+                    // TODO ADR 016: Upload to client IPFS first, then send CID
+                    // const cid = await ipfs.add(selectedFile);
+                    // formData.append('ipfsCid', cid.toString());
+                    
+                    // TODO ADR 020: Request intent token for lazy upload
+                    // formData.append('intentToken', generateIntentToken());
+                }
+                
+                showStatus('info', 'Submitting to validator...', 
+                    selectedFile ? `With binary: ${selectedFile.name}` : 'Text content only');
+                
+                // Call the validator's propose-write endpoint with multipart
+                // NOTE: Do NOT set Content-Type header - browser sets it with boundary
+                const response = await fetch(`${VALIDATOR_URL}/v1/propose-write`, {
+                    method: 'POST',
+                    body: formData  // FormData automatically uses multipart/form-data
+                });
+                
+                const responseText = await response.text();
+                
+                if (response.ok) {
+                    let result;
+                    try {
+                        result = JSON.parse(responseText);
+                    } catch (e) {
+                        result = { message: 'Content published', raw: responseText };
+                    }
+                    
+                    const path = result.path || result.storagePath || result.contentPath || '/oak-chain/...';
+                    const proposalId = result.proposalId || 'N/A';
+                    
+                    showStatus('success', '✓ Proposal submitted!', 
+                        `Path: ${path}\nProposal ID: ${proposalId}\n\nTracking status...`);
+                    
+                    // Start tracking proposal status
+                    if (proposalId && proposalId !== 'N/A') {
+                        trackProposalStatus(proposalId, path);
+                    }
+                    
+                    form.reset();
+                    selectedFile = null;
+                    filePreview.classList.remove('active');
+                    
+                    // Update storage path display
+                    if (walletAddress) updateStoragePath(walletAddress);
+                } else {
+                    // Extract error message from HTML or JSON response
+                    let errorMsg = responseText;
+                    if (responseText.includes('<title>')) {
+                        const match = responseText.match(/<title>([^<]+)<\/title>/);
+                        errorMsg = match ? match[1].replace('Error ', '') : 'Publication failed';
+                    }
+                    showStatus('error', 'Publication failed', errorMsg);
+                }
+            } catch (error) {
+                showStatus('error', 'Publication failed', error.message);
+            } finally {
+                publishBtn.disabled = false;
+                publishBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 2L11 13"/>
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                </svg> Publish to Oak-Chain`;
+            }
+        });
+        
+        // Show user info on avatar click - redirect to logout or profile
+        document.getElementById('user-avatar').addEventListener('click', () => {
+            // Show logout confirmation
+            if (confirm('Sign out of Blockchain AEM?')) {
+                window.location.href = '/system/sling/logout?resource=/starter.html';
+            }
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load authenticated user info (for avatar)
+            await loadUserInfo();
+            
+            // Check services immediately
+            await checkAllServices();
+            
+            // Load the Sling Author's wallet (content owner)
+            await loadSlingAuthorWallet();
+            
+            // Load network/mode status
+            loadNetworkStatus();
+            
+            // Set default date
+            document.getElementById('date').valueAsDate = new Date();
+        });
+        
+        // CSS for spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            .spin { animation: spin 1s linear infinite; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
+

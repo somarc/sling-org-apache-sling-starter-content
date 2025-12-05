@@ -20,19 +20,13 @@ under the License.
 <node>
     <primaryNodeType>nt:unstructured</primaryNodeType>
     <property>
-        <name>sling:resourceType</name>
-        <value>blockchain-aem/components/unified-editor</value>
-        <type>String</type>
-    </property>
-    <property>
         <name>jcr:title</name>
         <value>Content Editor</value>
         <type>String</type>
     </property>
     <property>
         <name>jcr:description</name>
-        <value>Unified content editor with blockchain publishing</value>
+        <value>Create and publish content to the oak-chain blockchain</value>
         <type>String</type>
     </property>
 </node>
-

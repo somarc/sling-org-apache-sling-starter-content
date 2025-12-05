@@ -20,19 +20,13 @@ under the License.
 <node>
     <primaryNodeType>nt:unstructured</primaryNodeType>
     <property>
-        <name>sling:resourceType</name>
-        <value>blockchain-aem/components/unified-viewer</value>
-        <type>String</type>
-    </property>
-    <property>
         <name>jcr:title</name>
-        <value>Content Viewer</value>
+        <value>Oak-Chain Viewer</value>
         <type>String</type>
     </property>
     <property>
         <name>jcr:description</name>
-        <value>Public-facing content viewer</value>
+        <value>Browse and explore oak-chain blockchain content with binary preview</value>
         <type>String</type>
     </property>
 </node>
-

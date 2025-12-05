@@ -29,7 +29,7 @@
     $(document).ready(function() {
         
         // Add biometric registration button to oak-chain publisher
-        if ($('#oak-chain-publisher-form').length > 0) {
+        if ($('#blockchain-aem-publisher-form').length > 0) {
             addBiometricFeatures();
         }
         
@@ -101,7 +101,7 @@
             );
         
         // Insert buttons
-        $('#oak-chain-publisher-form').prepend(registerButton);
+        $('#blockchain-aem-publisher-form').prepend(registerButton);
         $('#publish-btn').after(biometricPublishButton);
         
         // Wire up event handlers

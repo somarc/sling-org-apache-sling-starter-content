@@ -21,8 +21,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockchain AEM | Dashboard</title>
+    <title>Dashboard | Blockchain AEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Cyberpunk-inspired dark theme with teal/cyan accents */
+            --bg-deep: #0a0e14;
+            --bg-surface: #111820;
+            --bg-elevated: #1a222e;
+            --bg-hover: #252f3f;
+            
+            --accent-primary: #00ffd5;
+            --accent-secondary: #00a3cc;
+            --accent-tertiary: #7c3aed;
+            --accent-glow: rgba(0, 255, 213, 0.15);
+            
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 255, 213, 0.3);
+            
+            --success: #3fb950;
+            --warning: #f0b429;
+            --error: #f85149;
+            --info: #58a6ff;
+            
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            --shadow-glow: 0 0 40px rgba(0, 255, 213, 0.1);
+            --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -30,252 +66,572 @@
         }
         
         body {
-            font-family: 'Adobe Clean', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: var(--font-sans);
+            background: var(--bg-deep);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 0;
+        }
+        
+        /* Animated background pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0, 255, 213, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
         
         /* Top Navigation Bar */
-        .top-nav {
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 16px 32px;
+        .top-bar {
+            height: 56px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
         }
         
-        .nav-left {
+        .brand {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 12px;
         }
         
-        .logo {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+        }
+        
+        .brand-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-deep);
+        }
+        
+        .brand-text {
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .brand-text span {
+            color: var(--accent-primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
             text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
         }
         
-        .logo span {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        
+        .nav-links a.active {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mode-badge {
+            padding: 6px 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .mode-badge.mock { color: var(--warning); border-color: rgba(240, 180, 41, 0.3); }
+        .mode-badge.sepolia { color: var(--info); border-color: rgba(88, 166, 255, 0.3); }
+        .mode-badge.mainnet { color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
+        
+        /* Status Indicators */
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 8px;
+        }
+        
+        .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .status-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .status-dot.connected .dot {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+        
+        .status-dot.connected {
+            color: var(--text-secondary);
+        }
+        
+        .status-dot.error .dot {
+            background: var(--error);
+            box-shadow: 0 0 8px var(--error);
+        }
+        
+        .status-dot.error {
+            color: var(--error);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 48px 24px;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+        }
+        
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 300;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+        
+        .hero h1 strong {
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
         
-        .nav-links {
-            display: flex;
-            gap: 20px;
+        .hero p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto;
         }
         
-        .nav-links a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.2s ease;
-        }
-        
-        .nav-links a:hover {
-            color: #667eea;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: white;
-            font-size: 14px;
+        /* Author Wallet Section */
+        .author-wallet-section {
+            margin-bottom: 32px;
         }
         
         .wallet-badge {
-            background: rgba(102, 126, 234, 0.2);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-family: monospace;
-            font-size: 12px;
-        }
-        
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s ease;
-        }
-        
-        .logout-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Main Content */
-        .container {
-            max-width: 1400px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, rgba(0, 255, 213, 0.08), rgba(124, 58, 237, 0.08));
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-md);
+            max-width: 600px;
             margin: 0 auto;
-            padding: 40px 20px;
         }
         
-        .welcome-banner {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 16px;
-            padding: 40px;
-            margin-bottom: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        .wallet-badge > svg {
+            color: var(--accent-primary);
+            flex-shrink: 0;
         }
         
-        .welcome-banner h1 {
-            font-size: 36px;
-            font-weight: 300;
-            margin-bottom: 8px;
-            color: #333;
+        .wallet-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         
-        .welcome-banner p {
-            font-size: 16px;
-            color: #666;
+        .wallet-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+        }
+        
+        .wallet-address {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--accent-primary);
+            font-weight: 500;
+        }
+        
+        .copy-btn {
+            padding: 8px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        
+        .copy-btn:hover {
+            background: var(--bg-hover);
+            color: var(--accent-primary);
+            border-color: var(--accent-primary);
         }
         
         /* Action Cards Grid */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
             margin-bottom: 40px;
         }
         
         .action-card {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            border: 1px solid var(--border-subtle);
+            transition: all 0.25s ease;
             cursor: pointer;
             text-decoration: none;
             color: inherit;
             display: block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-lg);
+            padding: 1px;
+            background: linear-gradient(135deg, transparent, var(--accent-primary), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.25s ease;
         }
         
         .action-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            background: var(--bg-elevated);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .action-card:hover::before {
+            opacity: 1;
         }
         
         .card-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--accent-glow);
+            border: 1px solid var(--border-accent);
         }
         
         .card-icon svg {
-            color: white;
+            width: 26px;
+            height: 26px;
+            color: var(--accent-primary);
+        }
+        
+        .card-icon.purple {
+            background: rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.3);
+        }
+        
+        .card-icon.purple svg {
+            color: var(--accent-tertiary);
+        }
+        
+        .card-icon.blue {
+            background: rgba(88, 166, 255, 0.15);
+            border-color: rgba(88, 166, 255, 0.3);
+        }
+        
+        .card-icon.blue svg {
+            color: var(--info);
+        }
+        
+        .card-icon.yellow {
+            background: rgba(240, 180, 41, 0.15);
+            border-color: rgba(240, 180, 41, 0.3);
+        }
+        
+        .card-icon.yellow svg {
+            color: var(--warning);
         }
         
         .action-card h2 {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
+            margin-bottom: 10px;
+            color: var(--text-primary);
         }
         
         .action-card p {
-            font-size: 14px;
+            font-size: 13px;
             line-height: 1.6;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 16px;
         }
         
         .card-link {
-            color: #667eea;
-            font-size: 14px;
+            color: var(--accent-primary);
+            font-size: 13px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .card-link svg {
+            transition: transform 0.15s ease;
+        }
+        
+        .action-card:hover .card-link svg {
+            transform: translateX(4px);
+        }
+        
+        /* Status Grid */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .status-card {
+            background: var(--bg-surface);
+            border-radius: var(--radius-md);
+            padding: 20px 24px;
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .status-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .status-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        /* Status Bar */
-        .status-bar {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 12px;
-            padding: 24px 32px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }
-        
-        .status-item {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .status-label {
-            font-size: 12px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .status-value {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-        }
-        
         .status-value.success {
-            color: #38ef7d;
+            color: var(--success);
         }
         
         .status-value.error {
-            color: #f5576c;
+            color: var(--error);
+        }
+        
+        .status-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+        
+        .footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
         }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .container { padding: 20px 12px; }
-            .welcome-banner { padding: 24px; }
+            .container { padding: 24px 16px; }
+            .hero { padding: 32px 20px; }
+            .hero h1 { font-size: 28px; }
             .cards-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
         }
     </style>
 </head>
 <body>
     <!-- Top Navigation -->
-    <nav class="top-nav">
-        <div class="nav-left">
-            <a href="/" class="logo">
-                Blockchain <span>AEM</span>
-            </a>
-            <div class="nav-links">
-                <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
-                <a href="/content/blockchain-aem/editor.html">Editor</a>
-                <a href="/content/blockchain-aem/viewer.html">Viewer</a>
-                <a href="/bin/browser.html/oak-chain">Browser</a>
+    <nav class="top-bar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.5L19 8l-7 3.5L5 8l7-3.5zM4 9.17l7 3.5v7.16l-7-3.5V9.17zm9 10.66v-7.16l7-3.5v7.16l-7 3.5z"/>
+                </svg>
             </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
         </div>
-        <div class="user-info">
-            <span class="wallet-badge" id="user-wallet">0x...</span>
-            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        
+        <div class="nav-links">
+            <a href="/content/blockchain-aem/dashboard.html" class="active">Dashboard</a>
+            <a href="/content/blockchain-aem/editor.html">Editor</a>
+            <a href="/content/blockchain-aem/viewer.html">Viewer</a>
+        </div>
+        
+        <div class="user-section">
+            <div class="status-indicators">
+                <div class="status-dot" id="validator-status" title="Validator connection">
+                    <span class="dot"></span>
+                    <span>Validator</span>
+                </div>
+                <div class="status-dot" id="ipfs-status" title="IPFS connection">
+                    <span class="dot"></span>
+                    <span>IPFS</span>
+                </div>
+            </div>
+            <span class="mode-badge" id="mode-badge">MOCK</span>
+            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
         </div>
     </nav>
     
     <!-- Main Content -->
     <div class="container">
-        <!-- Welcome Banner -->
-        <div class="welcome-banner">
-            <h1>Welcome back!</h1>
-            <p>Choose an action below to get started with Blockchain AEM</p>
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>Welcome to <strong>Blockchain AEM</strong></h1>
+            <p>Decentralized content management with blockchain-backed storage, IPFS binaries, and wallet-based authentication</p>
+        </div>
+        
+        <!-- Author Wallet Info -->
+        <div class="author-wallet-section" id="author-wallet-section" style="display: none;">
+            <div class="wallet-badge">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2"/>
+                    <path d="M1 10h22"/>
+                </svg>
+                <div class="wallet-info">
+                    <span class="wallet-label">Content Owner Wallet</span>
+                    <span class="wallet-address" id="author-wallet-address">Loading...</span>
+                </div>
+                <button class="copy-btn" id="copy-wallet-btn" title="Copy address">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                </button>
+            </div>
         </div>
         
         <!-- Action Cards -->
@@ -283,108 +639,96 @@
             <!-- Content Editor Card -->
             <a href="/content/blockchain-aem/editor.html" class="action-card">
                 <div class="card-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32">
-                        <path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
                 </div>
                 <h2>Content Editor</h2>
-                <p>Create and publish content to the oak-chain with biometric authentication. No MetaMask popups required!</p>
+                <p>Create pages and upload binaries to the distributed oak-chain. Content is stored under your wallet's shard with IPFS-backed binary storage.</p>
                 <span class="card-link">
                     Open Editor
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
                 </span>
             </a>
             
             <!-- Content Viewer Card -->
             <a href="/content/blockchain-aem/viewer.html" class="action-card">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32">
-                        <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                <div class="card-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
                     </svg>
                 </div>
                 <h2>Content Viewer</h2>
-                <p>Browse and explore content from the distributed oak-chain. View content published by all validators.</p>
+                <p>Browse and explore content from the distributed oak-chain. Navigate the deeply sharded content tree.</p>
                 <span class="card-link">
                     Open Viewer
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                    </svg>
-                </span>
-            </a>
-            
-            <!-- Repository Browser Card (CRX DE) -->
-            <a href="/bin/browser.html/oak-chain" class="action-card">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32">
-                        <path fill="currentColor" d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-                    </svg>
-                </div>
-                <h2>Repository Browser</h2>
-                <p>Browse the JCR repository with Composum. Explore oak-chain content, view nodes, and manage properties.</p>
-                <span class="card-link">
-                    Open Browser
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
                 </span>
             </a>
             
             <!-- Validator Dashboard Card -->
             <a href="http://localhost:8090/" target="_blank" class="action-card">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" width="32" height="32">
-                        <path fill="currentColor" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                <div class="card-icon yellow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M3 9h18M9 21V9"/>
                     </svg>
                 </div>
                 <h2>Validator Dashboard</h2>
-                <p>Monitor the global oak-chain store, view consensus status, and explore segments and blocks.</p>
+                <p>Monitor the global oak-chain store, view Aeron cluster consensus status, and explore segments.</p>
                 <span class="card-link">
                     Open Dashboard
-                    <svg viewBox="0 0 24 24" width="16" height="16">
-                        <path fill="currentColor" d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
                     </svg>
                 </span>
             </a>
         </div>
         
-        <!-- Status Bar -->
-        <div class="status-bar">
-            <div class="status-item">
-                <span class="status-label">Authentication</span>
-                <span class="status-value success" id="auth-status">✅ Biometric Active</span>
+        <!-- Status Grid -->
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-label">Authentication</div>
+                <div class="status-value success" id="auth-status">✓ Authenticated</div>
             </div>
-            <div class="status-item">
-                <span class="status-label">Blockchain Network</span>
-                <span class="status-value" id="network-status">Loading...</span>
+            <div class="status-card">
+                <div class="status-label">Blockchain Network</div>
+                <div class="status-value" id="network-status">Loading...</div>
             </div>
-            <div class="status-item">
-                <span class="status-label">Oak-Chain Status</span>
-                <span class="status-value" id="oakchain-status">Loading...</span>
-                <span class="status-note" id="oakchain-note" style="font-size: 11px; color: #888;"></span>
+            <div class="status-card">
+                <div class="status-label">Oak-Chain Status</div>
+                <div class="status-value" id="oakchain-status">Loading...</div>
+                <div class="status-note" id="oakchain-note"></div>
             </div>
-            <div class="status-item">
-                <span class="status-label">IPFS BlobStore</span>
-                <span class="status-value" id="ipfs-status">Loading...</span>
+            <div class="status-card">
+                <div class="status-label">Binary Storage</div>
+                <div class="status-value" id="ipfs-status">Loading...</div>
             </div>
         </div>
     </div>
     
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2025 Blockchain AEM • Powered by <a href="https://github.com/apache/jackrabbit-oak" target="_blank">Apache Jackrabbit Oak</a></p>
+    </div>
+    
     <script>
-        // Load user info on page load
-        // NOTE: If this page loads at all, the user IS authenticated (Sling enforces auth on /content/blockchain-aem)
-        // This function just tries to display the username for a nicer UX
+        const VALIDATOR_URL = 'http://localhost:8090';
+        
+        // Load user info
         async function loadUserInfo() {
-            const displayEl = document.getElementById('user-wallet');
-            const authStatusEl = document.getElementById('auth-status');
-            
-            // Default to "Authenticated" - if we got here, Sling authenticated us
-            displayEl.textContent = 'Authenticated';
-            authStatusEl.textContent = '✅ Authenticated';
+            const avatar = document.getElementById('user-avatar');
+            const authStatus = document.getElementById('auth-status');
             
             try {
-                // Try to get username for display purposes only (not for auth check)
                 const response = await fetch('/system/sling/info.sessionInfo.json', {
                     credentials: 'same-origin'
                 });
@@ -392,32 +736,93 @@
                 if (response.ok) {
                     const data = await response.json();
                     const userID = data.userID;
-                    console.log('Session info:', data);
                     
                     if (userID && userID !== 'anonymous') {
-                        // Display user identifier
                         if (userID.startsWith('0x')) {
-                            displayEl.textContent = userID.substring(0, 6) + '...' + userID.substring(38);
-                            authStatusEl.textContent = '✅ Web3 Wallet';
+                            avatar.textContent = userID.substring(2, 4).toUpperCase();
+                            avatar.title = userID;
+                            authStatus.textContent = '✓ Web3 Wallet';
                         } else {
-                            displayEl.textContent = userID;
-                            authStatusEl.textContent = '✅ ' + userID;
+                            avatar.textContent = userID.charAt(0).toUpperCase();
+                            avatar.title = userID;
+                            authStatus.textContent = '✓ ' + userID;
                         }
                     }
                 }
             } catch (error) {
-                // Ignore errors - we're already authenticated if we got here
-                console.log('Could not fetch session info for display:', error);
+                console.log('Could not load user info:', error);
+            }
+        }
+        
+        // Check validator status
+        async function checkValidatorStatus() {
+            const statusEl = document.getElementById('validator-status');
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.className = 'status-dot connected';
+                    statusEl.title = `Validator: ${data.status || 'UP'}\nStore: ${data.store || 'N/A'}`;
+                    return true;
+                }
+            } catch (error) {
+                console.log('Validator check failed:', error.message);
+            }
+            statusEl.className = 'status-dot error';
+            statusEl.title = 'Validator: Not connected';
+            return false;
+        }
+        
+        // Check IPFS status
+        async function checkIpfsStatus() {
+            const statusEl = document.getElementById('ipfs-status');
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.ipfs === 'UP' || data.ipfsConnected) {
+                        statusEl.className = 'status-dot connected';
+                        statusEl.title = 'IPFS: Connected via validator';
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('IPFS check failed:', error.message);
+            }
+            statusEl.className = 'status-dot error';
+            statusEl.title = 'IPFS: Not connected';
+            return false;
+        }
+        
+        // Check all services
+        async function checkAllServices() {
+            await Promise.all([
+                checkValidatorStatus(),
+                checkIpfsStatus()
+            ]);
+        }
+        
+        // Load blockchain mode badge
+        async function loadBlockchainMode() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
+                if (response.ok) {
+                    const config = await response.json();
+                    const mode = config.mode?.toUpperCase() || 'MOCK';
+                    const modeBadge = document.getElementById('mode-badge');
+                    modeBadge.textContent = mode;
+                    modeBadge.className = `mode-badge ${mode.toLowerCase()}`;
+                }
+            } catch (error) {
+                document.getElementById('mode-badge').textContent = 'MOCK';
             }
         }
         
         // Load system status
         async function loadStatus() {
-            const validatorUrl = 'http://localhost:8090';
-            
-            // Check blockchain network mode from validator
+            // Check blockchain network mode
             try {
-                const configResponse = await fetch(`${validatorUrl}/v1/blockchain/config`);
+                const configResponse = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
                 if (configResponse.ok) {
                     const config = await configResponse.json();
                     document.getElementById('network-status').textContent = config.mode?.toUpperCase() || 'MOCK';
@@ -428,101 +833,114 @@
                 document.getElementById('network-status').textContent = 'MOCK';
             }
             
-            // Check oak-chain via validator /health endpoint
+            // Check oak-chain status
             try {
-                const oakResponse = await fetch(`${validatorUrl}/health`);
+                const oakResponse = await fetch(`${VALIDATOR_URL}/health`);
                 if (oakResponse.ok) {
                     const data = await oakResponse.json();
+                    const statusEl = document.getElementById('oakchain-status');
+                    const noteEl = document.getElementById('oakchain-note');
+                    
                     if (data.status === 'UP' || data.status === 'OK' || data.healthy === true) {
-                        document.getElementById('oakchain-status').textContent = '✅ Connected';
-                        document.getElementById('oakchain-status').classList.add('success');
-                        document.getElementById('oakchain-status').classList.remove('error');
-                        // Show epoch info if available
+                        statusEl.textContent = '✓ Connected';
+                        statusEl.classList.add('success');
                         if (data.committedEpoch !== undefined) {
-                            document.getElementById('oakchain-note').textContent = `Epoch ${data.committedEpoch}`;
+                            noteEl.textContent = `Epoch ${data.committedEpoch}`;
                         }
                     } else {
-                        document.getElementById('oakchain-status').textContent = '⚠️ Unhealthy';
-                        document.getElementById('oakchain-status').classList.add('error');
-                        document.getElementById('oakchain-status').classList.remove('success');
+                        statusEl.textContent = '⚠ Unhealthy';
+                        statusEl.classList.add('error');
                     }
                 } else {
-                    document.getElementById('oakchain-status').textContent = '⚠️ Disconnected';
+                    document.getElementById('oakchain-status').textContent = '⚠ Disconnected';
                     document.getElementById('oakchain-status').classList.add('error');
-                    document.getElementById('oakchain-status').classList.remove('success');
                     document.getElementById('oakchain-note').textContent = 'Lazy mount will auto-connect';
                 }
             } catch (error) {
-                console.error('Validator health check failed:', error);
-                document.getElementById('oakchain-status').textContent = '⚠️ Disconnected';
+                document.getElementById('oakchain-status').textContent = '⚠ Disconnected';
                 document.getElementById('oakchain-status').classList.add('error');
-                document.getElementById('oakchain-status').classList.remove('success');
                 document.getElementById('oakchain-note').textContent = 'Lazy mount will auto-connect';
             }
             
-            // Check IPFS via validator's /health endpoint (includes blobStoreType)
-            // Direct IPFS API calls fail due to CORS, so we check validator's health
+            // Check IPFS/BlobStore status
             try {
-                const healthResponse = await fetch(`${validatorUrl}/health`);
+                const healthResponse = await fetch(`${VALIDATOR_URL}/health`);
                 if (healthResponse.ok) {
                     const data = await healthResponse.json();
-                    const blobType = data.blobStoreType || 'default';
+                    const blobType = data.blobStoreType || 'file';
                     const blobActive = data.blobStoreActive;
+                    const ipfsEl = document.getElementById('ipfs-status');
                     
                     if (blobType === 'ipfs') {
-                        if (blobActive) {
-                            document.getElementById('ipfs-status').textContent = '✅ IPFS Active';
-                            document.getElementById('ipfs-status').classList.add('success');
-                            document.getElementById('ipfs-status').classList.remove('error');
-                        } else {
-                            document.getElementById('ipfs-status').textContent = '⚠️ IPFS Configured (Inactive)';
-                            document.getElementById('ipfs-status').classList.add('error');
-                            document.getElementById('ipfs-status').classList.remove('success');
-                        }
+                        ipfsEl.textContent = blobActive ? '✓ IPFS Active' : '⚠ IPFS Inactive';
+                        ipfsEl.classList.toggle('success', blobActive);
+                        ipfsEl.classList.toggle('error', !blobActive);
                     } else if (blobType === 's3') {
-                        document.getElementById('ipfs-status').textContent = '☁️ S3 Active';
-                        document.getElementById('ipfs-status').classList.remove('success', 'error');
+                        ipfsEl.textContent = '☁ S3 Active';
                     } else if (blobType === 'azure') {
-                        document.getElementById('ipfs-status').textContent = '☁️ Azure Active';
-                        document.getElementById('ipfs-status').classList.remove('success', 'error');
+                        ipfsEl.textContent = '☁ Azure Active';
                     } else {
-                        document.getElementById('ipfs-status').textContent = '📁 FileStore';
-                        document.getElementById('ipfs-status').classList.remove('success', 'error');
+                        ipfsEl.textContent = '📁 FileStore';
                     }
                 } else {
-                    document.getElementById('ipfs-status').textContent = '⚠️ Unknown';
-                    document.getElementById('ipfs-status').classList.add('error');
+                    document.getElementById('ipfs-status').textContent = '⚠ Unknown';
                 }
             } catch (error) {
-                console.error('BlobStore status check failed:', error);
-                document.getElementById('ipfs-status').textContent = '⚠️ Unknown';
+                document.getElementById('ipfs-status').textContent = '⚠ Unknown';
             }
         }
         
-        // Logout function
-        function logout() {
-            if (confirm('Are you sure you want to sign out?')) {
-                // Clear local storage
-                localStorage.clear();
-                
-                // Clear session
-                fetch('/system/sling/logout', {
-                    method: 'POST'
-                }).then(() => {
-                    window.location.href = '/starter.html';
-                }).catch(() => {
-                    // Fallback: just redirect
-                    window.location.href = '/starter.html';
+        // Sign out
+        document.getElementById('user-avatar').addEventListener('click', () => {
+            if (confirm('Sign out?')) {
+                fetch('/system/sling/logout', { method: 'POST' })
+                    .then(() => window.location.href = '/content/blockchain-aem/login.html')
+                    .catch(() => window.location.href = '/content/blockchain-aem/login.html');
+            }
+        });
+        
+        // Load Sling Author wallet address
+        async function loadAuthorWallet() {
+            const section = document.getElementById('author-wallet-section');
+            const addressEl = document.getElementById('author-wallet-address');
+            
+            try {
+                const response = await fetch('/bin/blockchain/content-owner', {
+                    credentials: 'same-origin'
                 });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.address && data.address.startsWith('0x')) {
+                        addressEl.textContent = data.address;
+                        section.style.display = 'block';
+                        
+                        // Setup copy button
+                        document.getElementById('copy-wallet-btn').addEventListener('click', () => {
+                            navigator.clipboard.writeText(data.address).then(() => {
+                                const btn = document.getElementById('copy-wallet-btn');
+                                btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+                                setTimeout(() => {
+                                    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+                                }, 1500);
+                            });
+                        });
+                    }
+                }
+            } catch (error) {
+                console.log('Could not load author wallet:', error);
             }
         }
         
         // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
             loadUserInfo();
+            loadAuthorWallet();
+            loadBlockchainMode();
+            checkAllServices();
             loadStatus();
+            setInterval(checkAllServices, 30000);
         });
     </script>
 </body>
 </html>
-

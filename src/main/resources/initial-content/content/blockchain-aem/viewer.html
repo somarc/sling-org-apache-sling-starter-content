@@ -1,0 +1,2287 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements.  See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership.  The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied.  See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oak-Chain Viewer | Blockchain AEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Cyberpunk-inspired dark theme with teal/cyan accents */
+            --bg-deep: #0a0e14;
+            --bg-surface: #111820;
+            --bg-elevated: #1a222e;
+            --bg-hover: #252f3f;
+            
+            --accent-primary: #00ffd5;
+            --accent-secondary: #00a3cc;
+            --accent-tertiary: #7c3aed;
+            --accent-glow: rgba(0, 255, 213, 0.15);
+            
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 255, 213, 0.3);
+            
+            --success: #3fb950;
+            --warning: #f0b429;
+            --error: #f85149;
+            --info: #58a6ff;
+            
+            --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Monaco, Consolas, monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            --shadow-glow: 0 0 40px rgba(0, 255, 213, 0.1);
+            --shadow-elevated: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Top Navigation Bar */
+        .top-bar {
+            height: 56px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.3);
+        }
+        
+        .brand-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--bg-deep);
+        }
+        
+        .brand-text {
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .brand-text span {
+            color: var(--accent-primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+        
+        .nav-links a.active {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mode-badge {
+            padding: 6px 12px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .mode-badge.mock { color: var(--warning); border-color: rgba(240, 180, 41, 0.3); }
+        .mode-badge.sepolia { color: var(--info); border-color: rgba(88, 166, 255, 0.3); }
+        .mode-badge.mainnet { color: var(--success); border-color: rgba(63, 185, 80, 0.3); }
+        
+        /* Status Indicators */
+        .status-indicators {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 8px;
+        }
+        
+        .status-dot {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-muted);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .status-dot .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .status-dot.connected .dot {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+        
+        .status-dot.connected {
+            color: var(--text-secondary);
+        }
+        
+        .status-dot.error .dot {
+            background: var(--error);
+            box-shadow: 0 0 8px var(--error);
+        }
+        
+        .status-dot.error {
+            color: var(--error);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+        
+        /* Main Layout - Three Columns */
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Sidebar - Tree Navigation */
+        .sidebar {
+            width: 280px;
+            min-width: 240px;
+            max-width: 400px;
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border-subtle);
+            display: flex;
+            flex-direction: column;
+            resize: horizontal;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .sidebar-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+        
+        .refresh-btn {
+            background: none;
+            border: none;
+            padding: 6px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+        }
+        
+        .refresh-btn:hover {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .refresh-btn.loading svg {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .tree-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 8px 0;
+        }
+        
+        /* Custom scrollbar */
+        .tree-container::-webkit-scrollbar,
+        .content-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .tree-container::-webkit-scrollbar-track,
+        .content-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .tree-container::-webkit-scrollbar-thumb,
+        .content-panel::-webkit-scrollbar-thumb {
+            background: var(--bg-hover);
+            border-radius: 4px;
+        }
+        
+        .tree-container::-webkit-scrollbar-thumb:hover,
+        .content-panel::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+        
+        /* Tree Node Styles */
+        .tree-node {
+            user-select: none;
+        }
+        
+        .tree-node-row {
+            display: flex;
+            align-items: center;
+            padding: 4px 12px 4px calc(var(--depth) * 16px + 12px);
+            cursor: pointer;
+            border-left: 2px solid transparent;
+            transition: all 0.1s ease;
+        }
+        
+        .tree-node-row:hover {
+            background: var(--bg-hover);
+        }
+        
+        .tree-node-row.selected {
+            background: var(--accent-glow);
+            border-left-color: var(--accent-primary);
+        }
+        
+        .tree-node-row.selected .node-name {
+            color: var(--accent-primary);
+        }
+        
+        .tree-toggle {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 4px;
+            color: var(--text-muted);
+            transition: transform 0.15s ease;
+        }
+        
+        .tree-toggle.expanded {
+            transform: rotate(90deg);
+        }
+        
+        .tree-toggle.empty {
+            visibility: hidden;
+        }
+        
+        .node-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .node-icon.folder {
+            color: var(--warning);
+        }
+        
+        .node-icon.file {
+            color: var(--info);
+        }
+        
+        .node-icon.binary {
+            color: var(--accent-primary);
+        }
+        
+        .node-icon.chain {
+            color: var(--accent-tertiary);
+        }
+        
+        .node-name {
+            font-size: 13px;
+            font-weight: 450;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .node-badge {
+            margin-left: auto;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: 600;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .node-badge.ipfs {
+            background: rgba(0, 255, 213, 0.15);
+            color: var(--accent-primary);
+        }
+        
+        .node-badge.author-shard {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(0, 255, 213, 0.3));
+            color: var(--accent-primary);
+            font-weight: 600;
+            border: 1px solid var(--accent-primary);
+            animation: pulse-glow 2s infinite;
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 213, 0.3); }
+            50% { box-shadow: 0 0 12px rgba(0, 255, 213, 0.6); }
+        }
+        
+        .tree-node-row.author-shard-row {
+            background: linear-gradient(90deg, rgba(0, 255, 213, 0.08), transparent);
+            border-left: 2px solid var(--accent-primary);
+        }
+        
+        .tree-node-row.author-shard-row:hover {
+            background: linear-gradient(90deg, rgba(0, 255, 213, 0.15), var(--bg-hover));
+        }
+        
+        .node-badge.count {
+            background: var(--bg-hover);
+            color: var(--text-muted);
+        }
+        
+        .tree-children {
+            overflow: hidden;
+            height: 0;
+        }
+        
+        .tree-children.expanded {
+            height: auto;
+        }
+        
+        /* Content Panel */
+        .content-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb-bar {
+            padding: 12px 20px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+        
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .breadcrumb-item a {
+            color: inherit;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+        }
+        
+        .breadcrumb-item a:hover {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        .breadcrumb-item.current {
+            color: var(--text-primary);
+        }
+        
+        .breadcrumb-sep {
+            color: var(--text-muted);
+        }
+        
+        /* Node Detail View */
+        .detail-view {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        
+        .detail-header {
+            margin-bottom: 24px;
+        }
+        
+        .detail-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .detail-title svg {
+            color: var(--accent-primary);
+        }
+        
+        .detail-path {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--bg-surface);
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        /* Properties Section */
+        .section {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            padding: 16px 20px;
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title svg {
+            color: var(--accent-secondary);
+        }
+        
+        .section-badge {
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .properties-table {
+            width: 100%;
+        }
+        
+        .property-row {
+            display: flex;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .property-row:last-child {
+            border-bottom: none;
+        }
+        
+        .property-row:hover {
+            background: var(--bg-hover);
+        }
+        
+        .property-name {
+            width: 200px;
+            min-width: 200px;
+            padding: 12px 20px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent-secondary);
+            border-right: 1px solid var(--border-subtle);
+        }
+        
+        .property-value {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 13px;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        
+        .property-value.mono {
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+        
+        .property-type {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-left: 8px;
+            padding: 2px 6px;
+            background: var(--bg-hover);
+            border-radius: 4px;
+        }
+        
+        .property-type:empty {
+            display: none;
+        }
+        
+        .property-binary-info {
+            display: flex;
+            gap: 12px;
+            margin-top: 6px;
+            font-size: 11px;
+        }
+        
+        .binary-size {
+            color: var(--text-muted);
+        }
+        
+        .binary-id {
+            color: var(--accent-secondary);
+            cursor: help;
+        }
+        
+        .lookup-cid-btn {
+            margin-left: 12px;
+            padding: 4px 10px;
+            background: var(--accent-glow);
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-sm);
+            color: var(--accent-primary);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        
+        .lookup-cid-btn:hover:not(:disabled) {
+            background: var(--accent-primary);
+            color: var(--bg-deep);
+        }
+        
+        .lookup-cid-btn:disabled {
+            opacity: 0.7;
+            cursor: wait;
+        }
+        
+        /* Binary Preview Section */
+        .binary-preview {
+            padding: 20px;
+        }
+        
+        .binary-card {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-accent);
+            overflow: hidden;
+        }
+        
+        .binary-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .binary-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .binary-type-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-glow);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .binary-type-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-primary);
+        }
+        
+        .binary-info h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .binary-info p {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .binary-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--accent-primary);
+            color: var(--bg-deep);
+        }
+        
+        .btn-primary:hover {
+            background: #33ffe0;
+            box-shadow: 0 0 20px rgba(0, 255, 213, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .binary-preview-area {
+            padding: 20px;
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+        
+        .binary-preview-area img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-elevated);
+        }
+        
+        .binary-preview-area video {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: var(--radius-sm);
+        }
+        
+        .binary-preview-area audio {
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .binary-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .binary-placeholder svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+        
+        .binary-placeholder p {
+            font-size: 14px;
+        }
+        
+        .ipfs-link {
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px dashed var(--border-accent);
+        }
+        
+        .ipfs-link code {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--accent-primary);
+        }
+        
+        .ipfs-link .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+        
+        .ipfs-link .copy-btn:hover {
+            color: var(--accent-primary);
+            background: var(--accent-glow);
+        }
+        
+        /* Enhanced Binary Section Styles */
+        .binary-section .storage-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            margin: 0;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .storage-badge.ipfs {
+            background: rgba(0, 255, 213, 0.1);
+            color: var(--accent-primary);
+        }
+        
+        .storage-badge.oak {
+            background: rgba(240, 180, 41, 0.1);
+            color: var(--warning);
+        }
+        
+        .storage-badge.muted {
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+        }
+        
+        .storage-note {
+            padding: 8px 16px;
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-elevated);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .storage-note.warning {
+            color: var(--warning);
+            background: rgba(240, 180, 41, 0.05);
+        }
+        
+        .binary-card.ipfs-resolved {
+            border-color: var(--border-accent);
+        }
+        
+        .binary-card.oak-only {
+            border-color: rgba(240, 180, 41, 0.3);
+        }
+        
+        .ipfs-link.success {
+            background: rgba(0, 255, 213, 0.05);
+            border-color: var(--border-accent);
+        }
+        
+        .ipfs-link.warning {
+            background: rgba(240, 180, 41, 0.05);
+            border-color: rgba(240, 180, 41, 0.3);
+        }
+        
+        .link-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 0;
+        }
+        
+        .link-row:not(:last-child) {
+            border-bottom: 1px dashed var(--border-subtle);
+            padding-bottom: 10px;
+            margin-bottom: 4px;
+        }
+        
+        .link-row.muted {
+            opacity: 0.7;
+        }
+        
+        .link-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+        
+        .link-row code {
+            flex: 1;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--accent-primary);
+            word-break: break-all;
+        }
+        
+        .link-row .link-value {
+            flex: 1;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--info);
+            text-decoration: none;
+            word-break: break-all;
+        }
+        
+        .link-row .link-value:hover {
+            text-decoration: underline;
+        }
+        
+        .status-text {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-text.warning {
+            color: var(--warning);
+        }
+        
+        .status-text.success {
+            color: var(--success);
+        }
+        
+        .binary-preview-area.loaded img {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .binary-placeholder.error {
+            color: var(--error);
+        }
+        
+        .binary-placeholder .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .binary-type-icon.image { color: var(--accent-primary); }
+        .binary-type-icon.video { color: var(--accent-tertiary); }
+        .binary-type-icon.audio { color: var(--warning); }
+        .binary-type-icon.pdf { color: var(--error); }
+        
+        /* Children Grid */
+        .children-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            padding: 16px 20px;
+        }
+        
+        .child-card {
+            padding: 14px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .child-card:hover {
+            border-color: var(--accent-primary);
+            background: var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        
+        .child-card svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+        
+        .child-card.folder svg {
+            color: var(--warning);
+        }
+        
+        .child-card.file svg {
+            color: var(--info);
+        }
+        
+        .child-card span {
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+            max-width: 300px;
+        }
+        
+        /* Loading State */
+        .loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 14, 20, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--bg-hover);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* Status indicator for IPFS */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-dot.connected { background: var(--success); }
+        .status-dot.disconnected { background: var(--error); }
+        .status-dot.loading { background: var(--warning); animation: pulse 1s infinite; }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 240px;
+                min-width: 200px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: 0;
+                top: 48px;
+                bottom: 0;
+                z-index: 50;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="top-bar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.5L19 8l-7 3.5L5 8l7-3.5zM4 9.17l7 3.5v7.16l-7-3.5V9.17zm9 10.66v-7.16l7-3.5v7.16l-7 3.5z"/>
+                </svg>
+            </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
+            <a href="/content/blockchain-aem/editor.html">Editor</a>
+            <a href="/content/blockchain-aem/viewer.html" class="active">Viewer</a>
+        </div>
+        
+        <div class="user-section">
+            <div class="status-indicators">
+                <div class="status-dot" id="validator-status" title="Validator connection">
+                    <span class="dot"></span>
+                    <span>Validator</span>
+                </div>
+                <div class="status-dot" id="ipfs-status" title="IPFS connection">
+                    <span class="dot"></span>
+                    <span>IPFS</span>
+                </div>
+            </div>
+            <span class="mode-badge" id="mode-badge">MOCK</span>
+            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
+        </div>
+    </nav>
+    
+    <!-- Main Content Area -->
+    <div class="main-container">
+        <!-- Sidebar - Tree Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span class="sidebar-title">Explorer</span>
+                <button class="refresh-btn" id="refresh-btn" title="Refresh tree">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="tree-container" id="tree-container">
+                <!-- Tree nodes will be rendered here -->
+            </div>
+        </aside>
+        
+        <!-- Content Panel -->
+        <main class="content-panel" id="content-panel">
+            <!-- Initial empty state -->
+            <div class="empty-state" id="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                </svg>
+                <h3>Select a node to explore</h3>
+                <p>Browse the oak-chain content tree on the left to view node properties and binaries</p>
+            </div>
+            
+            <!-- Detail view (hidden initially) -->
+            <div id="detail-view" style="display: none;">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb-bar" id="breadcrumb"></div>
+                
+                <!-- Node content -->
+                <div class="detail-view" id="detail-content"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // ============================================
+        // Configuration
+        // ============================================
+        const VALIDATOR_URL = 'http://localhost:8090';
+        const IPFS_PUBLIC_GATEWAY = 'https://ipfs.io/ipfs';
+        const IPFS_LOCAL_GATEWAY = 'http://localhost:8080/ipfs';
+        const ROOT_PATH = '/oak-chain';
+        
+        // State
+        let currentPath = ROOT_PATH;
+        let treeData = {};
+        let blockchainMode = 'mock'; // Default to mock, will be detected from validator
+        
+        // Get the appropriate IPFS gateway based on blockchain mode
+        function getIpfsGateway(forPreview = true) {
+            // For inline previews: use local in mock mode (content only exists locally)
+            // For sharing links: always use public gateway
+            if (forPreview && blockchainMode === 'mock') {
+                return IPFS_LOCAL_GATEWAY;
+            }
+            return IPFS_PUBLIC_GATEWAY;
+        }
+        
+        // Detect blockchain mode from validator (same endpoint as editor)
+        async function detectBlockchainMode() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
+                if (response.ok) {
+                    const config = await response.json();
+                    blockchainMode = (config.mode || 'mock').toLowerCase();
+                    console.log('🔗 Blockchain mode:', blockchainMode);
+                } else {
+                    blockchainMode = 'mock';
+                    console.log('⚠️ Config endpoint returned non-OK, defaulting to mock');
+                }
+            } catch (e) {
+                console.log('⚠️ Could not detect blockchain mode, defaulting to mock (local IPFS)');
+                blockchainMode = 'mock';
+            }
+        }
+        let expandedNodes = new Set([ROOT_PATH]);
+        
+        // Sling Author's wallet info (for pinned shard)
+        let authorWallet = null;
+        let authorShard = null;
+        
+        // ============================================
+        // Utility Functions
+        // ============================================
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+        
+        function getNodeIcon(name, hasChildren, properties) {
+            // Check for binary content
+            const hasBinary = properties && (properties['jcr:data'] || properties['jcr:blobId']);
+            if (hasBinary) {
+                return `<svg class="node-icon binary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                </svg>`;
+            }
+            
+            // Special icons for known node types
+            if (name === 'oak-chain' || name === 'content') {
+                return `<svg class="node-icon chain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>`;
+            }
+            
+            // Folder or file
+            if (hasChildren) {
+                return `<svg class="node-icon folder" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                </svg>`;
+            }
+            
+            return `<svg class="node-icon file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+            </svg>`;
+        }
+        
+        function getMimeTypeIcon(mimeType) {
+            if (!mimeType) return 'file';
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'video';
+            if (mimeType.startsWith('audio/')) return 'audio';
+            if (mimeType.includes('pdf')) return 'pdf';
+            return 'file';
+        }
+        
+        function formatBytes(bytes) {
+            if (!bytes) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+        
+        function extractIpfsCid(value) {
+            if (!value) return null;
+            // Match ipfs:// URIs
+            const ipfsMatch = value.match(/ipfs:\/\/([a-zA-Z0-9]+)/);
+            if (ipfsMatch) return ipfsMatch[1];
+            // Match bare CIDs (Qm... or bafy...)
+            const cidMatch = value.match(/(Qm[a-zA-Z0-9]{44,}|bafy[a-zA-Z0-9]{50,})/);
+            if (cidMatch) return cidMatch[1];
+            return null;
+        }
+        
+        // Extract Oak blob ID from jcr:data or jcr:blobId value
+        // Oak blob IDs are SHA-256 hex strings, optionally with #length suffix
+        // Example: "ed06f9cbf0fe878013ccb266170e6b3ba676933a6f065675cc0115c840bf1442#22216"
+        // Or from binary notation: "[Binary: 22216 bytes, id=ed06f9cb...]"
+        function extractOakBlobId(value) {
+            if (!value) return null;
+            
+            // First check if it's already an IPFS CID - skip Oak lookup
+            if (value.startsWith('ipfs://') || value.startsWith('Qm') || value.startsWith('bafy')) {
+                return null;
+            }
+            
+            // Match id= in binary notation: [Binary: N bytes, id=HEXSTRING#LENGTH]
+            const binaryIdMatch = value.match(/id=([a-f0-9]{40,})(?:#\d+)?/i);
+            if (binaryIdMatch) return binaryIdMatch[1];
+            
+            // Match bare Oak blob ID (64 char hex, optionally with #length)
+            const oakIdMatch = value.match(/^([a-f0-9]{64})(?:#\d+)?$/i);
+            if (oakIdMatch) return oakIdMatch[1];
+            
+            // Match Oak blob ID anywhere in the string
+            const hexMatch = value.match(/([a-f0-9]{64})/i);
+            if (hexMatch) return hexMatch[1];
+            
+            return null;
+        }
+        
+        // Extract binary size from jcr:data notation
+        function extractBinarySize(value) {
+            if (!value) return null;
+            // Match "[Binary: N bytes, ...]" or "...#N" suffix
+            const bytesMatch = value.match(/Binary:\s*(\d+)\s*bytes/i);
+            if (bytesMatch) return parseInt(bytesMatch[1], 10);
+            const suffixMatch = value.match(/#(\d+)$/);
+            if (suffixMatch) return parseInt(suffixMatch[1], 10);
+            return null;
+        }
+        
+        // ============================================
+        // CID Mapping Cache (Oak blob ID → IPFS CID)
+        // ============================================
+        const cidCache = new Map();
+        
+        // Look up IPFS CID for an Oak blob ID via validator's CID mapping API
+        async function lookupIpfsCid(oakBlobId) {
+            if (!oakBlobId) return null;
+            
+            // Check cache first
+            if (cidCache.has(oakBlobId)) {
+                return cidCache.get(oakBlobId);
+            }
+            
+            try {
+                console.log(`🔍 Looking up IPFS CID for Oak blob: ${oakBlobId.substring(0, 16)}...`);
+                const response = await fetch(`${VALIDATOR_URL}/api/cid/${oakBlobId}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const ipfsCid = data.ipfsCid;
+                    
+                    if (ipfsCid) {
+                        console.log(`✅ Found IPFS CID: ${ipfsCid}`);
+                        cidCache.set(oakBlobId, ipfsCid);
+                        return ipfsCid;
+                    }
+                } else if (response.status === 404) {
+                    console.log(`⚠️ No CID mapping found for Oak blob: ${oakBlobId.substring(0, 16)}...`);
+                }
+            } catch (error) {
+                console.error('CID lookup failed:', error);
+            }
+            
+            // Cache negative result too (for 5 min)
+            cidCache.set(oakBlobId, null);
+            return null;
+        }
+        
+        // ============================================
+        // API Functions
+        // ============================================
+        
+        async function fetchNode(path) {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/api/explore?path=${encodeURIComponent(path)}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('Failed to fetch node:', path, error);
+                return null;
+            }
+        }
+        
+        async function checkValidatorStatus() {
+            const statusEl = document.getElementById('validator-status');
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.className = 'status-dot connected';
+                    statusEl.title = `Validator: ${data.status || 'UP'}\nStore: ${data.store || 'N/A'}`;
+                    return true;
+                }
+            } catch (error) {
+                console.log('Validator check failed:', error.message);
+            }
+            statusEl.className = 'status-dot error';
+            statusEl.title = 'Validator: Not connected';
+            return false;
+        }
+        
+        async function checkIpfsStatus() {
+            const statusEl = document.getElementById('ipfs-status');
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.ipfs === 'UP' || data.ipfsConnected) {
+                        statusEl.className = 'status-dot connected';
+                        statusEl.title = 'IPFS: Connected via validator';
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('IPFS check failed:', error.message);
+            }
+            statusEl.className = 'status-dot error';
+            statusEl.title = 'IPFS: Not connected';
+            return false;
+        }
+        
+        async function checkAllServices() {
+            await Promise.all([
+                checkValidatorStatus(),
+                checkIpfsStatus()
+            ]);
+        }
+        
+        async function loadBlockchainMode() {
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
+                if (response.ok) {
+                    const config = await response.json();
+                    const mode = config.mode?.toUpperCase() || 'MOCK';
+                    const modeBadge = document.getElementById('mode-badge');
+                    modeBadge.textContent = mode;
+                    modeBadge.className = `mode-badge ${mode.toLowerCase()}`;
+                }
+            } catch (error) {
+                document.getElementById('mode-badge').textContent = 'MOCK';
+            }
+        }
+        
+        // ============================================
+        // Sling Author Wallet (for pinned shard)
+        // ============================================
+        
+        async function loadAuthorWallet() {
+            try {
+                const response = await fetch('/bin/blockchain/content-owner', {
+                    credentials: 'same-origin'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.address && data.address.startsWith('0x')) {
+                        authorWallet = data.address.toLowerCase();
+                        authorShard = authorWallet.substring(2, 4);
+                        console.log(`✅ Author wallet loaded: ${authorWallet} (shard: ${authorShard})`);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('Could not load author wallet:', error);
+            }
+            return false;
+        }
+        
+        // ============================================
+        // Tree Rendering
+        // ============================================
+        
+        async function loadTree() {
+            const refreshBtn = document.getElementById('refresh-btn');
+            refreshBtn.classList.add('loading');
+            
+            const container = document.getElementById('tree-container');
+            container.innerHTML = '<div style="padding: 20px; color: var(--text-muted);">Loading...</div>';
+            
+            const rootData = await fetchNode(ROOT_PATH);
+            if (!rootData) {
+                container.innerHTML = '<div style="padding: 20px; color: var(--error);">Failed to load oak-chain</div>';
+                refreshBtn.classList.remove('loading');
+                return;
+            }
+            
+            treeData[ROOT_PATH] = rootData;
+            await renderTree();
+            refreshBtn.classList.remove('loading');
+        }
+        
+        async function renderTree() {
+            const container = document.getElementById('tree-container');
+            container.innerHTML = '';
+            
+            const rootNode = await renderTreeNode(ROOT_PATH, 'oak-chain', 0);
+            container.appendChild(rootNode);
+        }
+        
+        async function renderTreeNode(path, name, depth, isAuthorShard = false) {
+            const node = document.createElement('div');
+            node.className = 'tree-node';
+            node.dataset.path = path;
+            
+            const data = treeData[path];
+            const hasChildren = data && data.children && data.children.length > 0;
+            const isExpanded = expandedNodes.has(path);
+            const isSelected = path === currentPath;
+            
+            // Check for binary badge
+            const hasBinary = data && data.properties && (
+                data.properties['jcr:data'] || 
+                data.properties['jcr:blobId']
+            );
+            
+            // Special styling for author's shard
+            const authorBadge = isAuthorShard 
+                ? '<span class="node-badge author-shard">⭐ MY SHARD</span>' 
+                : '';
+            
+            node.innerHTML = `
+                <div class="tree-node-row ${isSelected ? 'selected' : ''} ${isAuthorShard ? 'author-shard-row' : ''}" style="--depth: ${depth}">
+                    <span class="tree-toggle ${isExpanded ? 'expanded' : ''} ${!hasChildren ? 'empty' : ''}">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </span>
+                    ${getNodeIcon(name, hasChildren, data?.properties)}
+                    <span class="node-name">${escapeHtml(name)}</span>
+                    ${authorBadge}
+                    ${hasBinary ? '<span class="node-badge ipfs">IPFS</span>' : ''}
+                    ${hasChildren ? `<span class="node-badge count">${data.children.length}</span>` : ''}
+                </div>
+                <div class="tree-children ${isExpanded ? 'expanded' : ''}"></div>
+            `;
+            
+            // Event handlers
+            const row = node.querySelector('.tree-node-row');
+            const toggle = node.querySelector('.tree-toggle');
+            const childrenContainer = node.querySelector('.tree-children');
+            
+            row.addEventListener('click', async (e) => {
+                // Select this node
+                document.querySelectorAll('.tree-node-row.selected').forEach(el => el.classList.remove('selected'));
+                row.classList.add('selected');
+                currentPath = path;
+                await loadNodeDetail(path);
+            });
+            
+            toggle.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (!hasChildren) return;
+                
+                if (isExpanded) {
+                    expandedNodes.delete(path);
+                    toggle.classList.remove('expanded');
+                    childrenContainer.classList.remove('expanded');
+                } else {
+                    expandedNodes.add(path);
+                    toggle.classList.add('expanded');
+                    childrenContainer.classList.add('expanded');
+                    
+                    // Load children if not already loaded
+                    if (childrenContainer.children.length === 0) {
+                        await loadChildren(path, childrenContainer, depth + 1);
+                    }
+                }
+            });
+            
+            // If expanded, load children
+            if (isExpanded && hasChildren) {
+                await loadChildren(path, childrenContainer, depth + 1);
+            }
+            
+            return node;
+        }
+        
+        async function loadChildren(parentPath, container, depth) {
+            const parentData = treeData[parentPath];
+            if (!parentData || !parentData.children) return;
+            
+            container.innerHTML = '';
+            
+            // Sort children: author's shard first, then alphabetically
+            let sortedChildren = [...parentData.children];
+            
+            // Only sort shards at the oak-chain root level
+            if (parentPath === ROOT_PATH && authorShard) {
+                sortedChildren.sort((a, b) => {
+                    // Author's shard goes first
+                    if (a === authorShard) return -1;
+                    if (b === authorShard) return 1;
+                    // Then alphabetically
+                    return a.localeCompare(b);
+                });
+            }
+            
+            for (const childName of sortedChildren) {
+                const childPath = parentPath === '/' ? `/${childName}` : `${parentPath}/${childName}`;
+                
+                // Fetch child data if not cached
+                if (!treeData[childPath]) {
+                    const childData = await fetchNode(childPath);
+                    if (childData) {
+                        treeData[childPath] = childData;
+                    }
+                }
+                
+                // Check if this is the author's shard
+                const isAuthorShard = (parentPath === ROOT_PATH && childName === authorShard);
+                
+                const childNode = await renderTreeNode(childPath, childName, depth, isAuthorShard);
+                container.appendChild(childNode);
+            }
+        }
+        
+        // ============================================
+        // Detail Panel Rendering
+        // ============================================
+        
+        async function loadNodeDetail(path) {
+            const emptyState = document.getElementById('empty-state');
+            const detailView = document.getElementById('detail-view');
+            const detailContent = document.getElementById('detail-content');
+            
+            emptyState.style.display = 'none';
+            detailView.style.display = 'flex';
+            detailView.style.flexDirection = 'column';
+            detailView.style.flex = '1';
+            
+            // Render breadcrumb
+            renderBreadcrumb(path);
+            
+            // Fetch fresh data
+            const data = await fetchNode(path);
+            if (!data) {
+                detailContent.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 8v4M12 16h.01"/>
+                        </svg>
+                        <h3>Failed to load node</h3>
+                        <p>Could not fetch data for ${escapeHtml(path)}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            treeData[path] = data;
+            
+            const nodeName = path.split('/').pop() || 'oak-chain';
+            const properties = data.properties || {};
+            const children = data.children || [];
+            
+            // Check for binary content
+            const binaryValue = properties['jcr:data'] || properties['jcr:blobId'];
+            const mimeType = properties['jcr:mimeType'];
+            const binarySize = extractBinarySize(binaryValue);
+            
+            // Try to extract IPFS CID directly first
+            let ipfsCid = extractIpfsCid(binaryValue);
+            let oakBlobId = null;
+            let cidLookupStatus = null;
+            
+            // If no direct IPFS CID, try Oak blob ID lookup
+            if (!ipfsCid && binaryValue) {
+                oakBlobId = extractOakBlobId(binaryValue);
+                if (oakBlobId) {
+                    console.log(`📦 Found Oak blob ID: ${oakBlobId.substring(0, 16)}... - looking up IPFS CID`);
+                    ipfsCid = await lookupIpfsCid(oakBlobId);
+                    cidLookupStatus = ipfsCid ? 'resolved' : 'not-found';
+                }
+            }
+            
+            let html = `
+                <div class="detail-header">
+                    <h1 class="detail-title">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                        ${escapeHtml(nodeName)}
+                    </h1>
+                    <code class="detail-path">${escapeHtml(path)}</code>
+                </div>
+            `;
+            
+            // Binary preview section - show for any binary content
+            if (binaryValue || ipfsCid || oakBlobId) {
+                html += renderBinarySection({
+                    ipfsCid,
+                    oakBlobId,
+                    mimeType,
+                    binarySize,
+                    rawValue: binaryValue,
+                    cidLookupStatus
+                });
+            }
+            
+            // Properties section
+            const propCount = Object.keys(properties).length;
+            if (propCount > 0) {
+                html += `
+                    <section class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                                </svg>
+                                Properties
+                            </h3>
+                            <span class="section-badge">${propCount} properties</span>
+                        </div>
+                        <div class="properties-table">
+                            ${renderProperties(properties)}
+                        </div>
+                    </section>
+                `;
+            }
+            
+            // Children section
+            if (children.length > 0) {
+                html += `
+                    <section class="section">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                                </svg>
+                                Children
+                            </h3>
+                            <span class="section-badge">${children.length} nodes</span>
+                        </div>
+                        <div class="children-grid">
+                            ${children.map(child => renderChildCard(path, child)).join('')}
+                        </div>
+                    </section>
+                `;
+            }
+            
+            detailContent.innerHTML = html;
+            
+            // Attach click handlers for child cards
+            detailContent.querySelectorAll('.child-card').forEach(card => {
+                card.addEventListener('click', async () => {
+                    const childPath = card.dataset.path;
+                    expandedNodes.add(path);
+                    await loadTree();
+                    
+                    // Select in tree
+                    const treeNode = document.querySelector(`[data-path="${childPath}"]`);
+                    if (treeNode) {
+                        document.querySelectorAll('.tree-node-row.selected').forEach(el => el.classList.remove('selected'));
+                        treeNode.querySelector('.tree-node-row').classList.add('selected');
+                    }
+                    
+                    currentPath = childPath;
+                    await loadNodeDetail(childPath);
+                });
+            });
+        }
+        
+        function renderBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const parts = path.split('/').filter(p => p);
+            
+            let html = `
+                <div class="breadcrumb-item">
+                    <a href="#" data-path="/">⌂</a>
+                </div>
+            `;
+            
+            let currentPath = '';
+            parts.forEach((part, i) => {
+                currentPath += '/' + part;
+                const isLast = i === parts.length - 1;
+                html += `
+                    <span class="breadcrumb-sep">›</span>
+                    <div class="breadcrumb-item ${isLast ? 'current' : ''}">
+                        ${isLast ? 
+                            `<span>${escapeHtml(part)}</span>` : 
+                            `<a href="#" data-path="${escapeHtml(currentPath)}">${escapeHtml(part)}</a>`
+                        }
+                    </div>
+                `;
+            });
+            
+            breadcrumb.innerHTML = html;
+            
+            // Attach click handlers
+            breadcrumb.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const targetPath = link.dataset.path;
+                    currentPath = targetPath;
+                    await loadNodeDetail(targetPath);
+                    await loadTree();
+                });
+            });
+        }
+        
+        function renderBinarySection({ ipfsCid, oakBlobId, mimeType, binarySize, rawValue, cidLookupStatus }) {
+            const iconType = getMimeTypeIcon(mimeType);
+            const sizeStr = binarySize ? formatBytes(binarySize) : 'Unknown size';
+            
+            // Determine preview source
+            let previewUrl = null;
+            let previewHtml = '';
+            let storageInfo = '';
+            let actionsHtml = '';
+            let linkHtml = '';
+            
+            if (ipfsCid) {
+                // Use appropriate gateway based on blockchain mode
+                // Mock mode: local gateway (content only exists on local IPFS node)
+                // Sepolia/Mainnet: public gateway (content is pinned to IPFS network)
+                const previewGateway = getIpfsGateway(true);  // For inline preview
+                const shareGateway = getIpfsGateway(false);   // For share links (always public)
+                const gatewayUrl = `${shareGateway}/${ipfsCid}`;
+                const localUrl = `${previewGateway}/${ipfsCid}`;
+                previewUrl = localUrl;
+                
+                storageInfo = `
+                    <div class="storage-badge ipfs">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                        </svg>
+                        IPFS Content-Addressed Storage
+                    </div>
+                    ${oakBlobId ? `<div class="storage-note">Oak blob → IPFS CID resolved via CidMappingService</div>` : ''}
+                `;
+                
+                actionsHtml = `
+                    <a href="${gatewayUrl}" target="_blank" class="btn btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                        Open in IPFS Gateway
+                    </a>
+                    <a href="${localUrl}" target="_blank" class="btn btn-secondary">
+                        Local Gateway
+                    </a>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('${ipfsCid}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Copy CID
+                    </button>
+                `;
+                
+                linkHtml = `
+                    <div class="ipfs-link success">
+                        <div class="link-row">
+                            <span class="link-label">IPFS CID:</span>
+                            <code>${ipfsCid}</code>
+                            <button class="copy-btn" onclick="copyToClipboard('${ipfsCid}')" title="Copy CID">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        ${oakBlobId ? `
+                        <div class="link-row muted">
+                            <span class="link-label">Oak Blob ID:</span>
+                            <code>${oakBlobId.substring(0, 32)}...</code>
+                        </div>
+                        ` : ''}
+                        <div class="link-row">
+                            <span class="link-label">Gateway URL:</span>
+                            <a href="${gatewayUrl}" target="_blank" class="link-value">${gatewayUrl}</a>
+                        </div>
+                    </div>
+                `;
+                
+            } else if (oakBlobId) {
+                // Oak blob ID but no IPFS CID mapping found
+                // Try to serve via validator's binary endpoint
+                const validatorBinaryUrl = `${VALIDATOR_URL}/api/binary/${oakBlobId}`;
+                previewUrl = validatorBinaryUrl;
+                
+                storageInfo = `
+                    <div class="storage-badge oak">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M12 8v8M8 12h8"/>
+                        </svg>
+                        Oak BlobStore (No IPFS CID mapping)
+                    </div>
+                    <div class="storage-note warning">
+                        Binary stored in Oak BlobStore. CID mapping not found - binary may need to be re-uploaded via IPFS DataStore.
+                    </div>
+                `;
+                
+                actionsHtml = `
+                    <a href="${validatorBinaryUrl}" target="_blank" class="btn btn-secondary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download via Validator
+                    </a>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('${oakBlobId}')">
+                        Copy Blob ID
+                    </button>
+                `;
+                
+                linkHtml = `
+                    <div class="ipfs-link warning">
+                        <div class="link-row">
+                            <span class="link-label">Oak Blob ID:</span>
+                            <code>${oakBlobId}</code>
+                            <button class="copy-btn" onclick="copyToClipboard('${oakBlobId}')" title="Copy Blob ID">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="link-row muted">
+                            <span class="link-label">CID Status:</span>
+                            <span class="status-text warning">Not mapped to IPFS</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // No binary identifier found
+                storageInfo = `
+                    <div class="storage-badge muted">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 16v-4M12 8h.01"/>
+                        </svg>
+                        Binary Reference (Unresolved)
+                    </div>
+                `;
+            }
+            
+            // Generate preview HTML based on mime type
+            if (previewUrl && mimeType) {
+                if (mimeType.startsWith('image/')) {
+                    previewHtml = `
+                        <img src="${previewUrl}" alt="Binary preview" 
+                             onload="this.parentElement.classList.add('loaded')"
+                             onerror="this.parentElement.innerHTML='<div class=\\'binary-placeholder error\\'><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><circle cx=\\'12\\' cy=\\'12\\' r=\\'10\\'/><path d=\\'M12 8v4M12 16h.01\\'/></svg><p>Failed to load image</p><p class=\\'hint\\'>Try opening directly via gateway</p></div>'"/>
+                    `;
+                } else if (mimeType.startsWith('video/')) {
+                    previewHtml = `<video controls src="${previewUrl}" style="max-width: 100%; max-height: 400px; border-radius: 8px;"></video>`;
+                } else if (mimeType.startsWith('audio/')) {
+                    previewHtml = `<audio controls src="${previewUrl}" style="width: 100%; max-width: 500px;"></audio>`;
+                } else {
+                    previewHtml = `
+                        <div class="binary-placeholder">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                            </svg>
+                            <p>${escapeHtml(mimeType)}</p>
+                            <p class="hint">${sizeStr}</p>
+                        </div>
+                    `;
+                }
+            } else if (!previewUrl) {
+                previewHtml = `
+                    <div class="binary-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>
+                        <p>Binary content detected</p>
+                        <p class="hint">${mimeType || 'Unknown type'} • ${sizeStr}</p>
+                    </div>
+                `;
+            }
+            
+            return `
+                <section class="section binary-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                <path d="M21 15l-5-5L5 21"/>
+                            </svg>
+                            Binary Content
+                        </h3>
+                        <span class="section-badge">${sizeStr}</span>
+                    </div>
+                    <div class="binary-preview">
+                        <div class="binary-card ${ipfsCid ? 'ipfs-resolved' : oakBlobId ? 'oak-only' : ''}">
+                            ${storageInfo}
+                            <div class="binary-header">
+                                <div class="binary-meta">
+                                    <div class="binary-type-icon ${getMimeTypeIcon(mimeType)}">
+                                        ${mimeType && mimeType.startsWith('image/') ? `
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                                <circle cx="8.5" cy="8.5" r="1.5"/>
+                                                <path d="M21 15l-5-5L5 21"/>
+                                            </svg>
+                                        ` : mimeType && mimeType.startsWith('video/') ? `
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polygon points="23 7 16 12 23 17 23 7"/>
+                                                <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                            </svg>
+                                        ` : mimeType && mimeType.startsWith('audio/') ? `
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M9 18V5l12-2v13"/>
+                                                <circle cx="6" cy="18" r="3"/>
+                                                <circle cx="18" cy="16" r="3"/>
+                                            </svg>
+                                        ` : `
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                                <polyline points="14,2 14,8 20,8"/>
+                                            </svg>
+                                        `}
+                                    </div>
+                                    <div class="binary-info">
+                                        <h4>${escapeHtml(mimeType || 'Binary Data')}</h4>
+                                        <p>${sizeStr} ${ipfsCid ? '• IPFS' : oakBlobId ? '• Oak BlobStore' : ''}</p>
+                                    </div>
+                                </div>
+                                <div class="binary-actions">
+                                    ${actionsHtml}
+                                </div>
+                            </div>
+                            <div class="binary-preview-area">
+                                ${previewHtml}
+                            </div>
+                            ${linkHtml}
+                        </div>
+                    </div>
+                </section>
+            `;
+        }
+        
+        function renderProperties(properties) {
+            return Object.entries(properties).map(([key, value]) => {
+                let displayValue = value;
+                let valueClass = '';
+                let typeLabel = '';
+                let extraHtml = '';
+                
+                // Detect types
+                if (key.includes('timestamp') || key.includes('Timestamp') || key === 'jcr:created' || key === 'jcr:lastModified') {
+                    const ts = parseInt(value, 10);
+                    if (!isNaN(ts) && ts > 1000000000000) {
+                        displayValue = new Date(ts).toLocaleString();
+                        typeLabel = 'timestamp';
+                    }
+                } else if (value && (value.startsWith('ipfs://') || value.startsWith('Qm') || value.startsWith('bafy'))) {
+                    const cid = extractIpfsCid(value);
+                    displayValue = `<a href="${getIpfsGateway(false)}/${cid}" target="_blank" style="color: var(--accent-primary)">${escapeHtml(value)}</a>`;
+                    typeLabel = 'ipfs';
+                } else if (value && value.startsWith('[Binary:')) {
+                    // Enhanced binary display
+                    const size = extractBinarySize(value);
+                    const oakId = extractOakBlobId(value);
+                    typeLabel = 'binary';
+                    valueClass = 'mono';
+                    
+                    if (oakId) {
+                        extraHtml = `
+                            <div class="property-binary-info">
+                                <span class="binary-size">${size ? formatBytes(size) : ''}</span>
+                                <span class="binary-id" title="${oakId}">Oak: ${oakId.substring(0, 16)}...</span>
+                            </div>
+                        `;
+                    }
+                } else if (key === 'jcr:blobId' && value) {
+                    // Blob ID - could be IPFS or Oak
+                    const ipfsCid = extractIpfsCid(value);
+                    const oakId = extractOakBlobId(value);
+                    valueClass = 'mono';
+                    
+                    if (ipfsCid) {
+                        displayValue = `<a href="${getIpfsGateway(false)}/${ipfsCid}" target="_blank" style="color: var(--accent-primary)">${escapeHtml(value)}</a>`;
+                        typeLabel = 'ipfs';
+                    } else if (oakId) {
+                        typeLabel = 'oak-blob';
+                        extraHtml = `<button class="lookup-cid-btn" onclick="lookupAndShowCid('${oakId}')" title="Look up IPFS CID">🔍 Lookup CID</button>`;
+                    }
+                } else if (value && value.startsWith('0x')) {
+                    valueClass = 'mono';
+                    typeLabel = 'address';
+                } else if (key === 'jcr:primaryType' || key === 'sling:resourceType') {
+                    typeLabel = 'type';
+                    valueClass = 'mono';
+                }
+                
+                return `
+                    <div class="property-row">
+                        <div class="property-name">${escapeHtml(key)}</div>
+                        <div class="property-value ${valueClass}">
+                            ${typeof displayValue === 'string' && displayValue.startsWith('<') ? displayValue : escapeHtml(String(displayValue))}
+                            ${typeLabel ? `<span class="property-type">${typeLabel}</span>` : ''}
+                            ${extraHtml}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Quick CID lookup from properties view
+        async function lookupAndShowCid(oakBlobId) {
+            const btn = event.target;
+            btn.textContent = '⏳ Looking up...';
+            btn.disabled = true;
+            
+            try {
+                const ipfsCid = await lookupIpfsCid(oakBlobId);
+                if (ipfsCid) {
+                    btn.textContent = `✅ ${ipfsCid.substring(0, 12)}...`;
+                    btn.style.color = 'var(--success)';
+                    btn.onclick = () => {
+                        window.open(`${getIpfsGateway(true)}/${ipfsCid}`, '_blank');
+                    };
+                    btn.title = `Open ${ipfsCid} in IPFS Gateway`;
+                } else {
+                    btn.textContent = '❌ No CID found';
+                    btn.style.color = 'var(--error)';
+                }
+            } catch (e) {
+                btn.textContent = '❌ Lookup failed';
+                btn.style.color = 'var(--error)';
+            }
+        }
+        
+        function renderChildCard(parentPath, childName) {
+            const childPath = parentPath === '/' ? `/${childName}` : `${parentPath}/${childName}`;
+            const childData = treeData[childPath];
+            const hasChildren = childData && childData.children && childData.children.length > 0;
+            
+            return `
+                <div class="child-card ${hasChildren ? 'folder' : 'file'}" data-path="${escapeHtml(childPath)}">
+                    ${hasChildren ? 
+                        `<svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                        </svg>` :
+                        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14,2 14,8 20,8"/>
+                        </svg>`
+                    }
+                    <span>${escapeHtml(childName)}</span>
+                </div>
+            `;
+        }
+        
+        // ============================================
+        // Utility Actions
+        // ============================================
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show brief feedback
+                const btn = event.target.closest('button');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '✓ Copied!';
+                btn.style.color = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.style.color = '';
+                }, 1500);
+            });
+        }
+        
+        // ============================================
+        // User Session
+        // ============================================
+        
+        async function loadUserInfo() {
+            try {
+                const response = await fetch('/system/sling/info.sessionInfo.json', {
+                    credentials: 'same-origin'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const userID = data.userID;
+                    const avatar = document.getElementById('user-avatar');
+                    
+                    if (userID && userID !== 'anonymous') {
+                        if (userID.startsWith('0x')) {
+                            avatar.textContent = userID.substring(2, 4).toUpperCase();
+                            avatar.title = userID;
+                        } else {
+                            avatar.textContent = userID.charAt(0).toUpperCase();
+                            avatar.title = userID;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.log('Could not load user info:', error);
+            }
+        }
+        
+        // ============================================
+        // Initialization
+        // ============================================
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Detect blockchain mode (mock uses local IPFS, sepolia/mainnet uses public IPFS)
+            await detectBlockchainMode();
+            
+            // Load blockchain mode badge
+            await loadBlockchainMode();
+            
+            // Check service status (validator + IPFS)
+            await checkAllServices();
+            setInterval(checkAllServices, 30000);
+            
+            // Load user info
+            await loadUserInfo();
+            
+            // Load author wallet (for pinned shard)
+            await loadAuthorWallet();
+            
+            // Load tree (with author's shard pinned to top)
+            await loadTree();
+            
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', loadTree);
+            
+            // User avatar click - sign out
+            document.getElementById('user-avatar').addEventListener('click', () => {
+                if (confirm('Sign out?')) {
+                    fetch('/system/sling/logout', { method: 'POST' })
+                        .then(() => window.location.href = '/content/blockchain-aem/login.html')
+                        .catch(() => window.location.href = '/content/blockchain-aem/login.html');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

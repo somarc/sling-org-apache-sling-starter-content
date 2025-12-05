@@ -39,8 +39,8 @@
     
     function initBiometricPublisher() {
         // Check if we're on the oak-chain publisher page
-        const publishForm = document.getElementById('oak-chain-publisher-form') || 
-                           document.querySelector('form[data-component="oak-chain-publisher"]');
+        const publishForm = document.getElementById('blockchain-aem-publisher-form') || 
+                           document.querySelector('form[data-component="blockchain-aem-publisher"]');
         
         if (!publishForm) {
             console.log('Not on oak-chain publisher page, skipping biometric integration');

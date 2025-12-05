@@ -1,10 +1,6 @@
-# Sling-Initial-Content with separate paths for apps (overwrite) and content (merge)
-# - /apps: Scripts/components should always be updated on restart
-# - /content: Content nodes should be created if missing, not overwritten
-# Note: ROOT.json is not loaded (cannot load at root level) - /content/starter.json provides starter page
-Sling-Initial-Content: \
-    initial-content/apps;overwrite:=true;path:=/apps;uninstall:=true, \
-    initial-content/content;path:=/content;uninstall:=true
+# Match Apache Sling original: load all of initial-content at root
+# This allows ROOT.json to set sling:redirect from / to /starter.html
+Sling-Initial-Content: initial-content
 
 -includeresource: target/frontend/dist
 

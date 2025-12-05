@@ -1,0 +1,6 @@
+{
+    "jcr:primaryType": "sling:Folder",
+    "jcr:title": "Blockchain AEM Login Page",
+    "jcr:description": "Login page component for Blockchain AEM with biometric, MetaMask, and Sling authentication"
+}
+
