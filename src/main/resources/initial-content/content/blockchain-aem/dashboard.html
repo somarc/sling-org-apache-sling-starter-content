@@ -798,7 +798,7 @@
                 const response = await fetch(`${VALIDATOR_URL}/health`);
                 if (response.ok) {
                     const data = await response.json();
-                    if (data.ipfs === 'UP' || data.ipfsConnected) {
+                    if (data.blobStoreType === 'ipfs' && data.blobStoreActive) {
                         statusEl.className = 'status-dot connected';
                         statusEl.title = 'IPFS: Connected via validator';
                         return true;
