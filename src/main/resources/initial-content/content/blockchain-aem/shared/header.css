@@ -163,6 +163,22 @@
     color: var(--error);
 }
 
+.status-dot .ipfs-logo {
+    width: 16px;
+    height: 16px;
+    transition: all 0.3s ease;
+}
+
+.status-dot.connected .ipfs-logo {
+    color: var(--accent-primary);
+    filter: drop-shadow(0 0 4px var(--accent-primary));
+}
+
+.status-dot.error .ipfs-logo {
+    color: var(--error);
+    opacity: 0.6;
+}
+
 .user-avatar {
     width: 32px;
     height: 32px;

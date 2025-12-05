@@ -227,6 +227,22 @@
             color: var(--error);
         }
         
+        .status-dot .ipfs-logo {
+            width: 16px;
+            height: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-dot.connected .ipfs-logo {
+            color: var(--accent-primary);
+            filter: drop-shadow(0 0 4px var(--accent-primary));
+        }
+        
+        .status-dot.error .ipfs-logo {
+            color: var(--error);
+            opacity: 0.6;
+        }
+        
         .user-avatar {
             width: 32px;
             height: 32px;
@@ -668,7 +684,9 @@
                 </div>
                 <div class="status-dot" id="ipfs-status" title="IPFS connection">
                     <span class="dot"></span>
-                    <span>IPFS</span>
+                    <svg class="ipfs-logo" width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M255.9 33L53 127.4v257.2L255.9 479l202.9-94.4V127.4L255.9 33zm0 30.2l165.4 77-165.4 77-165.4-77 165.4-77zM75.5 160l165.4 77v179.4L75.5 339.3V160zm361 0v179.3l-165.4 77.1V239l165.4-79z"/>
+                    </svg>
                 </div>
             </div>
             <span class="mode-badge" id="mode-badge">MOCK</span>

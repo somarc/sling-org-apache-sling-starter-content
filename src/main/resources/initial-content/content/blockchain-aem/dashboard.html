@@ -226,6 +226,22 @@
             color: var(--error);
         }
         
+        .status-dot .ipfs-logo {
+            width: 16px;
+            height: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-dot.connected .ipfs-logo {
+            color: var(--accent-primary);
+            filter: drop-shadow(0 0 4px var(--accent-primary));
+        }
+        
+        .status-dot.error .ipfs-logo {
+            color: var(--error);
+            opacity: 0.6;
+        }
+        
         .user-avatar {
             width: 32px;
             height: 32px;
@@ -598,7 +614,9 @@
                 </div>
                 <div class="status-dot" id="ipfs-status" title="IPFS connection">
                     <span class="dot"></span>
-                    <span>IPFS</span>
+                    <svg class="ipfs-logo" width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M255.9 33L53 127.4v257.2L255.9 479l202.9-94.4V127.4L255.9 33zm0 30.2l165.4 77-165.4 77-165.4-77 165.4-77zM75.5 160l165.4 77v179.4L75.5 339.3V160zm361 0v179.3l-165.4 77.1V239l165.4-79z"/>
+                    </svg>
                 </div>
             </div>
             <span class="mode-badge" id="mode-badge">MOCK</span>
@@ -710,7 +728,7 @@
             </div>
             <div class="status-card">
                 <div class="status-label">Binary Storage</div>
-                <div class="status-value" id="ipfs-status">Loading...</div>
+                <div class="status-value" id="binary-storage-status">Loading...</div>
             </div>
         </div>
     </div>
@@ -869,33 +887,31 @@
                     const data = await healthResponse.json();
                     const blobType = data.blobStoreType || 'file';
                     const blobActive = data.blobStoreActive;
-                    const ipfsEl = document.getElementById('ipfs-status');
+                    const binaryEl = document.getElementById('binary-storage-status');
                     
                     if (blobType === 'ipfs') {
-                        ipfsEl.textContent = blobActive ? '✓ IPFS Active' : '⚠ IPFS Inactive';
-                        ipfsEl.classList.toggle('success', blobActive);
-                        ipfsEl.classList.toggle('error', !blobActive);
+                        binaryEl.textContent = blobActive ? '✓ IPFS Active' : '⚠ IPFS Inactive';
+                        binaryEl.classList.toggle('success', blobActive);
+                        binaryEl.classList.toggle('error', !blobActive);
                     } else if (blobType === 's3') {
-                        ipfsEl.textContent = '☁ S3 Active';
+                        binaryEl.textContent = '☁ S3 Active';
                     } else if (blobType === 'azure') {
-                        ipfsEl.textContent = '☁ Azure Active';
+                        binaryEl.textContent = '☁ Azure Active';
                     } else {
-                        ipfsEl.textContent = '📁 FileStore';
+                        binaryEl.textContent = '📁 FileStore';
                     }
                 } else {
-                    document.getElementById('ipfs-status').textContent = '⚠ Unknown';
+                    document.getElementById('binary-storage-status').textContent = '⚠ Unknown';
                 }
             } catch (error) {
-                document.getElementById('ipfs-status').textContent = '⚠ Unknown';
+                document.getElementById('binary-storage-status').textContent = '⚠ Unknown';
             }
         }
         
         // Sign out
         document.getElementById('user-avatar').addEventListener('click', () => {
-            if (confirm('Sign out?')) {
-                fetch('/system/sling/logout', { method: 'POST' })
-                    .then(() => window.location.href = '/content/blockchain-aem/login.html')
-                    .catch(() => window.location.href = '/content/blockchain-aem/login.html');
+            if (confirm('Sign out of Blockchain AEM?')) {
+                window.location.href = '/system/sling/logout?resource=/starter.html';
             }
         });
         
