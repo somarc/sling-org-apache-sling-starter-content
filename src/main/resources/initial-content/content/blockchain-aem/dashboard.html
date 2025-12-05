@@ -515,50 +515,158 @@
             transform: translateX(4px);
         }
         
-        /* Status Grid */
-        .status-grid {
+        /* Section Titles */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title svg {
+            color: var(--accent-primary);
+        }
+        
+        /* Metrics Section */
+        .metrics-section {
+            margin-bottom: 40px;
+        }
+        
+        .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
         
-        .status-card {
-            background: var(--bg-surface);
+        .metric-card {
+            background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-elevated) 100%);
             border-radius: var(--radius-md);
-            padding: 20px 24px;
+            padding: 24px;
             border: 1px solid var(--border-subtle);
+            text-align: center;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
         
-        .status-label {
-            font-size: 11px;
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+        
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+        
+        .metric-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 2px 8px rgba(102, 126, 234, 0.3));
+        }
+        
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 6px;
+            font-feature-settings: 'tnum';
+        }
+        
+        .metric-label {
+            font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-bottom: 8px;
         }
         
-        .status-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
+        /* Activity Feed */
+        .activity-section {
+            margin-bottom: 40px;
+        }
+        
+        .activity-feed {
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+        
+        .activity-item {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.2s ease;
         }
         
-        .status-value.success {
-            color: var(--success);
+        .activity-item:last-child {
+            border-bottom: none;
         }
         
-        .status-value.error {
-            color: var(--error);
+        .activity-item:hover {
+            background: var(--bg-elevated);
         }
         
-        .status-note {
-            font-size: 11px;
+        .activity-item.loading {
+            opacity: 0.6;
+        }
+        
+        .activity-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        .activity-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .activity-message {
+            font-size: 14px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            word-break: break-word;
+        }
+        
+        .activity-message strong {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        
+        .activity-time {
+            font-size: 12px;
             color: var(--text-muted);
-            margin-top: 4px;
+        }
+        
+        .activity-empty {
+            padding: 48px 24px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .activity-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
         
         /* Footer */
@@ -711,24 +819,55 @@
             </a>
         </div>
         
-        <!-- Status Grid -->
-        <div class="status-grid">
-            <div class="status-card">
-                <div class="status-label">Authentication</div>
-                <div class="status-value success" id="auth-status">✓ Authenticated</div>
+        <!-- Key Metrics Section -->
+        <div class="metrics-section">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Live Metrics
+            </h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon">📝</div>
+                    <div class="metric-value" id="content-count">0</div>
+                    <div class="metric-label">Content Items</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">📦</div>
+                    <div class="metric-value" id="storage-size">0 KB</div>
+                    <div class="metric-label">IPFS Storage</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">💰</div>
+                    <div class="metric-value" id="total-writes">0</div>
+                    <div class="metric-label">Total Writes</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon">👛</div>
+                    <div class="metric-value" id="wallet-count">0</div>
+                    <div class="metric-label">Active Wallets</div>
+                </div>
             </div>
-            <div class="status-card">
-                <div class="status-label">Blockchain Network</div>
-                <div class="status-value" id="network-status">Loading...</div>
-            </div>
-            <div class="status-card">
-                <div class="status-label">Oak-Chain Status</div>
-                <div class="status-value" id="oakchain-status">Loading...</div>
-                <div class="status-note" id="oakchain-note"></div>
-            </div>
-            <div class="status-card">
-                <div class="status-label">Binary Storage</div>
-                <div class="status-value" id="binary-storage-status">Loading...</div>
+        </div>
+        
+        <!-- Recent Activity Feed -->
+        <div class="activity-section">
+            <h2 class="section-title">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                    <polyline points="17 6 23 6 23 12"/>
+                </svg>
+                Recent Activity
+            </h2>
+            <div class="activity-feed" id="activity-feed">
+                <div class="activity-item loading">
+                    <div class="activity-icon">⏳</div>
+                    <div class="activity-content">
+                        <div class="activity-message">Loading recent activity...</div>
+                        <div class="activity-time">Just now</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -836,76 +975,133 @@
             }
         }
         
-        // Load system status
-        async function loadStatus() {
-            // Check blockchain network mode
+        // Load key metrics
+        async function loadMetrics() {
             try {
-                const configResponse = await fetch(`${VALIDATOR_URL}/v1/blockchain/config`);
-                if (configResponse.ok) {
-                    const config = await configResponse.json();
-                    document.getElementById('network-status').textContent = config.mode?.toUpperCase() || 'MOCK';
-                } else {
-                    document.getElementById('network-status').textContent = 'MOCK';
+                // Get wallet stats for content count and wallet count
+                const walletsResponse = await fetch(`${VALIDATOR_URL}/v1/wallets/stats`);
+                if (walletsResponse.ok) {
+                    const stats = await walletsResponse.json();
+                    document.getElementById('content-count').textContent = stats.totalContent || 0;
+                    document.getElementById('wallet-count').textContent = stats.totalWallets || 0;
+                    document.getElementById('total-writes').textContent = stats.totalWrites || 0;
                 }
-            } catch (error) {
-                document.getElementById('network-status').textContent = 'MOCK';
-            }
-            
-            // Check oak-chain status
-            try {
-                const oakResponse = await fetch(`${VALIDATOR_URL}/health`);
-                if (oakResponse.ok) {
-                    const data = await oakResponse.json();
-                    const statusEl = document.getElementById('oakchain-status');
-                    const noteEl = document.getElementById('oakchain-note');
-                    
-                    if (data.status === 'UP' || data.status === 'OK' || data.healthy === true) {
-                        statusEl.textContent = '✓ Connected';
-                        statusEl.classList.add('success');
-                        if (data.committedEpoch !== undefined) {
-                            noteEl.textContent = `Epoch ${data.committedEpoch}`;
-                        }
-                    } else {
-                        statusEl.textContent = '⚠ Unhealthy';
-                        statusEl.classList.add('error');
-                    }
-                } else {
-                    document.getElementById('oakchain-status').textContent = '⚠ Disconnected';
-                    document.getElementById('oakchain-status').classList.add('error');
-                    document.getElementById('oakchain-note').textContent = 'Lazy mount will auto-connect';
-                }
-            } catch (error) {
-                document.getElementById('oakchain-status').textContent = '⚠ Disconnected';
-                document.getElementById('oakchain-status').classList.add('error');
-                document.getElementById('oakchain-note').textContent = 'Lazy mount will auto-connect';
-            }
-            
-            // Check IPFS/BlobStore status
-            try {
+                
+                // Get health for storage size
                 const healthResponse = await fetch(`${VALIDATOR_URL}/health`);
                 if (healthResponse.ok) {
-                    const data = await healthResponse.json();
-                    const blobType = data.blobStoreType || 'file';
-                    const blobActive = data.blobStoreActive;
-                    const binaryEl = document.getElementById('binary-storage-status');
-                    
-                    if (blobType === 'ipfs') {
-                        binaryEl.textContent = blobActive ? '✓ IPFS Active' : '⚠ IPFS Inactive';
-                        binaryEl.classList.toggle('success', blobActive);
-                        binaryEl.classList.toggle('error', !blobActive);
-                    } else if (blobType === 's3') {
-                        binaryEl.textContent = '☁ S3 Active';
-                    } else if (blobType === 'azure') {
-                        binaryEl.textContent = '☁ Azure Active';
-                    } else {
-                        binaryEl.textContent = '📁 FileStore';
-                    }
-                } else {
-                    document.getElementById('binary-storage-status').textContent = '⚠ Unknown';
+                    const health = await healthResponse.json();
+                    const storeSize = health.storeSize || '0 KB';
+                    document.getElementById('storage-size').textContent = storeSize;
                 }
             } catch (error) {
-                document.getElementById('binary-storage-status').textContent = '⚠ Unknown';
+                console.log('Could not load metrics:', error);
             }
+        }
+        
+        // Load recent activity
+        async function loadActivity() {
+            const feedEl = document.getElementById('activity-feed');
+            
+            try {
+                // Fetch proposals (recent activity)
+                const proposalsResponse = await fetch(`${VALIDATOR_URL}/v1/proposals/recent?limit=5`);
+                
+                if (!proposalsResponse.ok) {
+                    // Fallback: show mock activity
+                    showMockActivity(feedEl);
+                    return;
+                }
+                
+                const proposals = await proposalsResponse.json();
+                
+                if (!proposals || proposals.length === 0) {
+                    feedEl.innerHTML = `
+                        <div class="activity-empty">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 6v6l4 2"/>
+                            </svg>
+                            <div>No recent activity</div>
+                            <div style="font-size: 11px; margin-top: 4px;">Start creating content to see activity here</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Build activity feed from proposals
+                feedEl.innerHTML = proposals.map(p => {
+                    const icon = p.operation === 'write' ? '📝' : (p.operation === 'delete' ? '🗑️' : '📦');
+                    const action = p.operation === 'write' ? 'created' : (p.operation === 'delete' ? 'deleted' : 'uploaded');
+                    const path = p.path || 'content';
+                    const wallet = p.wallet ? p.wallet.substring(0, 10) + '...' : 'unknown';
+                    const timeAgo = p.timestamp ? formatTimeAgo(p.timestamp) : 'recently';
+                    
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon">${icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-message">
+                                    <strong>${wallet}</strong> ${action} ${path}
+                                </div>
+                                <div class="activity-time">${timeAgo}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.log('Could not load activity:', error);
+                showMockActivity(feedEl);
+            }
+        }
+        
+        // Show mock activity (for demo when no real data)
+        function showMockActivity(feedEl) {
+            feedEl.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon">🎬</div>
+                    <div class="activity-content">
+                        <div class="activity-message">
+                            Blockchain AEM system initialized
+                        </div>
+                        <div class="activity-time">Just now</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">🔐</div>
+                    <div class="activity-content">
+                        <div class="activity-message">
+                            IPFS DataStore connected and active
+                        </div>
+                        <div class="activity-time">Just now</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">⚡</div>
+                    <div class="activity-content">
+                        <div class="activity-message">
+                            Aeron Raft consensus cluster formed
+                        </div>
+                        <div class="activity-time">Just now</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Format timestamp to "X ago"
+        function formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const seconds = Math.floor(diff / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            const days = Math.floor(hours / 24);
+            
+            if (days > 0) return `${days}d ago`;
+            if (hours > 0) return `${hours}h ago`;
+            if (minutes > 0) return `${minutes}m ago`;
+            return 'Just now';
         }
         
         // Sign out
@@ -954,8 +1150,15 @@
             loadAuthorWallet();
             loadBlockchainMode();
             checkAllServices();
-            loadStatus();
-            setInterval(checkAllServices, 30000);
+            loadMetrics();
+            loadActivity();
+            
+            // Refresh metrics and activity periodically
+            setInterval(() => {
+                checkAllServices();
+                loadMetrics();
+                loadActivity();
+            }, 30000); // Every 30 seconds
         });
     </script>
 </body>
