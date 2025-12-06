@@ -22,290 +22,616 @@ under the License.
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Blockchain AEM</title>
-    <link rel="stylesheet" href="/apps/blockchain-aem/components/login/clientlibs/css/login-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .register-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 40px;
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --accent-primary: #00d4aa;
+            --accent-secondary: #7c3aed;
+            --accent-tertiary: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b7280;
+            --border-color: rgba(0, 212, 170, 0.2);
+            --glow-primary: rgba(0, 212, 170, 0.3);
+            --glow-secondary: rgba(124, 58, 237, 0.3);
         }
         
-        .register-box {
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 50px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-glow.teal {
+            background: var(--accent-primary);
+            top: -200px;
+            right: -200px;
+        }
+        
+        .bg-glow.purple {
+            background: var(--accent-secondary);
+            bottom: -200px;
+            left: -200px;
+        }
+        
+        /* Header - matches other Blockchain AEM pages */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px var(--glow-primary);
+        }
+        
+        .brand-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--bg-primary);
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .brand-text {
+            font-weight: 600;
+            font-size: 17px;
+            letter-spacing: -0.3px;
+        }
+        
+        .brand-text span {
+            color: var(--accent-primary);
+        }
+        
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .back-link:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .logo span {
+            color: var(--accent-primary);
+        }
+        
+        /* Main content */
+        .register-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+        
+        .register-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 48px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
         
-        .register-icon {
-            font-size: 64px;
+        .register-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .register-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 36px;
         }
         
         .register-title {
-            font-size: 32px;
-            font-weight: 300;
-            color: #ffffff;
-            text-align: center;
-            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .register-subtitle {
-            font-size: 16px;
-            color: #a0a0b0;
-            text-align: center;
-            margin-bottom: 40px;
+            color: var(--text-secondary);
+            font-size: 15px;
             line-height: 1.6;
         }
         
-        .register-button {
+        /* Buttons */
+        .btn {
             width: 100%;
-            padding: 18px;
-            font-size: 18px;
-            font-weight: 500;
+            padding: 16px 24px;
             border: none;
             border-radius: 12px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            margin-bottom: 16px;
         }
         
-        .register-button.metamask {
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #00b894 100%);
+            color: var(--bg-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--glow-primary);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--accent-secondary) 0%, #9333ea 100%);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--glow-secondary);
+        }
+        
+        .btn-metamask {
             background: linear-gradient(135deg, #f6851b 0%, #e2761b 100%);
             color: white;
         }
         
-        .register-button.biometric {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .register-button:hover {
+        .btn-metamask:hover {
             transform: translateY(-2px);
-            box-shadow: 0 12px 24px rgba(103, 126, 234, 0.3);
+            box-shadow: 0 8px 24px rgba(246, 133, 27, 0.3);
         }
         
-        .register-button:disabled {
+        .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
         
+        .btn-icon {
+            font-size: 20px;
+        }
+        
+        /* Info box */
         .info-box {
-            background: rgba(103, 126, 234, 0.1);
-            border-left: 3px solid #667eea;
+            background: rgba(0, 212, 170, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             padding: 20px;
-            border-radius: 8px;
-            margin-top: 30px;
-            color: #a0a0b0;
-            font-size: 14px;
-            line-height: 1.6;
+            margin-top: 24px;
         }
         
+        .info-box-title {
+            color: var(--accent-primary);
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-box-content {
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        
+        .info-box-content ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        /* Back link */
         .back-link {
             display: block;
             text-align: center;
-            margin-top: 30px;
-            color: #667eea;
+            margin-top: 24px;
+            color: var(--accent-primary);
             text-decoration: none;
             font-size: 14px;
+            transition: color 0.2s;
         }
         
         .back-link:hover {
-            text-decoration: underline;
+            color: var(--text-primary);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 48px;
+            border-radius: 20px;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .modal-message {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            white-space: pre-line;
+        }
+        
+        .modal-btn {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #00b894 100%);
+            color: var(--bg-primary);
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
-    <div class="animated-bg"></div>
-    <div class="blockchain-pattern"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-glow teal"></div>
+    <div class="bg-glow purple"></div>
+    
+    <header class="header">
+        <a href="/starter.html" class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
+        </a>
+        <a href="/starter.html" class="back-link">← Back to Login</a>
+    </header>
     
     <div class="register-container">
-        <div class="register-box">
-            <div class="register-icon">🔐</div>
-            <h1 class="register-title">Create Your Account</h1>
-            <p class="register-subtitle">
-                Connect your wallet to create a Blockchain AEM author account.<br>
-                No passwords needed - just your wallet signature.
-            </p>
+        <div class="register-card">
+            <div class="register-header">
+                <div class="register-icon">🔐</div>
+                <h1 class="register-title">Create Your Account</h1>
+                <p class="register-subtitle">
+                    Connect your wallet to create a Blockchain AEM author account.<br>
+                    No passwords needed - just your wallet signature.
+                </p>
+            </div>
             
-            <button id="register-metamask-btn" class="register-button metamask">
-                <span style="font-size: 24px;">🦊</span>
-                Register with MetaMask
-            </button>
-            
-            <button id="register-biometric-btn" class="register-button biometric">
-                <span style="font-size: 24px;">👆</span>
+            <button id="btn-biometric" class="btn btn-primary">
+                <span class="btn-icon">👆</span>
                 Register with Biometric
             </button>
             
+            <button id="btn-metamask" class="btn btn-metamask">
+                <span class="btn-icon">🦊</span>
+                Register with MetaMask
+            </button>
+            
             <div class="info-box">
-                <strong>What happens next:</strong><br>
-                1. Connect your wallet or create biometric credential<br>
-                2. We'll create your author account<br>
-                3. You'll be added to the administrators group<br>
-                4. You can then sign in and publish content
+                <div class="info-box-title">
+                    <span>📋</span> What happens next
+                </div>
+                <div class="info-box-content">
+                    <ol>
+                        <li>Create biometric credential or connect wallet</li>
+                        <li>We'll create your author account</li>
+                        <li>You'll be added to the administrators group</li>
+                        <li>Sign in and start publishing content</li>
+                    </ol>
+                </div>
             </div>
             
-            <a href="/starter.html" class="back-link">← Back to Sign In</a>
+            <a href="/content/blockchain-aem/dashboard.html" class="back-link">← Back to Dashboard</a>
         </div>
     </div>
     
-    <!-- Modal for status messages -->
-    <div id="status-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; align-items:center; justify-content:center;">
-        <div style="background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding:40px; border-radius:20px; max-width:500px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.5);">
-            <div id="status-icon" style="font-size:64px; margin-bottom:20px;"></div>
-            <h2 id="status-title" style="color:#fff; margin:0 0 10px 0; font-size:24px;"></h2>
-            <p id="status-message" style="color:#a0a0b0; margin:0 0 20px 0; font-size:16px; white-space: pre-line;"></p>
-            <button id="status-ok-btn" onclick="document.getElementById('status-modal').style.display='none'" style="background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:#fff; border:none; padding:12px 30px; border-radius:8px; font-size:16px; cursor:pointer; display:none;">OK</button>
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div id="modal-icon" class="modal-icon"></div>
+            <h2 id="modal-title" class="modal-title"></h2>
+            <p id="modal-message" class="modal-message"></p>
+            <button id="modal-btn" class="modal-btn" onclick="closeModal()">OK</button>
         </div>
     </div>
     
-    <script src="/apps/blockchain-aem/components/login/clientlibs/js/biometric-wallet-creation.js"></script>
     <script>
-        function showStatus(icon, title, message, showOkButton) {
-            const modal = document.getElementById('status-modal');
-            document.getElementById('status-icon').textContent = icon;
-            document.getElementById('status-title').textContent = title;
-            document.getElementById('status-message').textContent = message;
-            document.getElementById('status-ok-btn').style.display = showOkButton ? 'inline-block' : 'none';
-            modal.style.display = 'flex';
+        // =============================================
+        // Modal Functions
+        // =============================================
+        function showStatus(icon, title, message, showOk = false) {
+            document.getElementById('modal-icon').textContent = icon;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('modal-btn').style.display = showOk ? 'inline-block' : 'none';
+            document.getElementById('modal').style.display = 'flex';
         }
         
-        document.addEventListener('DOMContentLoaded', function() {
-            const metamaskBtn = document.getElementById('register-metamask-btn');
-            const biometricBtn = document.getElementById('register-biometric-btn');
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+        
+        // =============================================
+        // Biometric Wallet Creation (Inlined)
+        // =============================================
+        async function keccak256(data) {
+            // For demo: use SHA-256 (in production use ethers.utils.keccak256)
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hash))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+        
+        async function deriveEthereumAddress(pubKey) {
+            // Extract coordinates (skip 0x04 prefix if present)
+            const start = pubKey[0] === 0x04 ? 1 : 0;
+            const qx = pubKey.slice(start, start + 32);
+            const qy = pubKey.slice(start + 32, start + 64);
             
-            // MetaMask registration
-            metamaskBtn.addEventListener('click', async function() {
-                const btn = metamaskBtn;
-                
-                try {
-                    if (!window.ethereum) {
-                        showStatus('🦊', 'MetaMask Not Found', 
-                            'Please install the MetaMask browser extension to continue.', true);
-                        window.open('https://metamask.io', '_blank');
-                        return;
-                    }
-                    
-                    btn.disabled = true;
-                    btn.innerHTML = '<span style="font-size: 24px;">⏳</span> Opening MetaMask...';
-                    
-                    // Step 1: Request accounts
-                    showStatus('🦊', 'Opening MetaMask...', 
-                        'Please check your MetaMask extension and approve the connection request.', false);
-                    
-                    const accounts = await window.ethereum.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
-                    const userAddress = accounts[0];
-                    
-                    // Step 2: Sign registration message
-                    showStatus('✍️', 'Sign Registration Message', 
-                        'Please sign the message in MetaMask to create your account.', false);
-                    
-                    const message = 'Register with Blockchain AEM\nWallet: ' + userAddress + '\nTimestamp: ' + Date.now();
-                    const signature = await window.ethereum.request({
-                        method: 'personal_sign',
-                        params: [message, userAddress]
-                    });
-                    
-                    // Step 3: Send to backend for user creation
-                    showStatus('🔐', 'Creating Account...', 
-                        'Creating your author account in the repository...', false);
-                    
-                    const response = await fetch('/bin/blockchain-aem/register-user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            address: userAddress, 
-                            signature: signature,
-                            message: message,
-                            type: 'metamask'
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Registration failed: ' + response.statusText);
-                    }
-                    
-                    const result = await response.json();
-                    
-                    // Success!
-                    showStatus('✅', 'Account Created!', 
-                        'Wallet: ' + userAddress.substring(0, 10) + '...\n\n' +
-                        'You can now sign in with MetaMask.\n\n' +
-                        'Redirecting to login page...', false);
-                    
-                    localStorage.setItem('blockchain_aem_wallet', userAddress);
-                    
-                    setTimeout(function() {
-                        window.location.href = '/starter.html';
-                    }, 3000);
-                    
-                } catch (error) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span style="font-size: 24px;">🦊</span> Register with MetaMask';
-                    
-                    if (error.code === 4001) {
-                        showStatus('❌', 'Registration Cancelled', 
-                            'You rejected the request in MetaMask.', true);
-                    } else {
-                        showStatus('❌', 'Registration Failed', 
-                            'Error: ' + error.message, true);
-                    }
-                }
+            const combined = new Uint8Array(64);
+            combined.set(qx, 0);
+            combined.set(qy, 32);
+            
+            const hash = await keccak256(combined);
+            return '0x' + hash.slice(0, 40);
+        }
+        
+        async function createBiometricWallet() {
+            if (!('PublicKeyCredential' in window)) {
+                throw new Error('Biometrics not supported on this device');
+            }
+            
+            showStatus('🔐', 'Initializing...', 'Preparing biometric registration...');
+            
+            const challenge = crypto.getRandomValues(new Uint8Array(32));
+            
+            const options = {
+                challenge: challenge,
+                rp: {
+                    name: 'Blockchain AEM',
+                    id: window.location.hostname
+                },
+                user: {
+                    id: crypto.getRandomValues(new Uint8Array(16)),
+                    name: 'author@blockchain-aem.local',
+                    displayName: 'AEM Author'
+                },
+                pubKeyCredParams: [{ alg: -7, type: 'public-key' }],
+                authenticatorSelection: {
+                    authenticatorAttachment: 'platform',
+                    userVerification: 'required'
+                },
+                timeout: 60000,
+                attestation: 'direct'
+            };
+            
+            showStatus('👆', 'Scan Biometric', 'Please scan your fingerprint or face...');
+            
+            const credential = await navigator.credentials.create({ publicKey: options });
+            
+            showStatus('🔑', 'Generating Wallet...', 'Deriving Ethereum address from public key...');
+            
+            // Get public key
+            let pubKey;
+            if (credential.response.getPublicKey) {
+                pubKey = new Uint8Array(credential.response.getPublicKey());
+            } else {
+                throw new Error('Could not extract public key from credential');
+            }
+            
+            const address = await deriveEthereumAddress(pubKey);
+            
+            console.log('✅ Biometric wallet created:');
+            console.log('  Address:', address);
+            console.log('  Credential ID:', credential.id);
+            console.log('  Public Key:', pubKey.length, 'bytes');
+            
+            return {
+                address: address,
+                credentialId: credential.id,
+                pubKey: Array.from(pubKey),
+                rawId: Array.from(new Uint8Array(credential.rawId))
+            };
+        }
+        
+        async function registerWithBackend(walletData) {
+            showStatus('📡', 'Registering...', 'Registering wallet with validators...');
+            
+            const response = await fetch('/bin/blockchain-aem/biometric-register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    address: walletData.address,
+                    credentialId: walletData.credentialId,
+                    pubKey: walletData.pubKey,
+                    rawId: walletData.rawId
+                })
             });
             
-            // Biometric registration
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Registration failed');
+            }
+            
+            return await response.json();
+        }
+        
+        // =============================================
+        // Event Handlers
+        // =============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const biometricBtn = document.getElementById('btn-biometric');
+            const metamaskBtn = document.getElementById('btn-metamask');
+            
+            // Biometric Registration
             biometricBtn.addEventListener('click', async function() {
-                const btn = biometricBtn;
-                
                 try {
-                    btn.disabled = true;
-                    btn.innerHTML = '<span style="font-size: 24px;">⏳</span> Initializing...';
+                    biometricBtn.disabled = true;
+                    biometricBtn.innerHTML = '<span class="btn-icon">⏳</span> Initializing...';
                     
-                    // Use the biometric wallet creation flow
-                    const walletData = await setupBiometricWallet(showStatus);
+                    // Step 1: Create wallet
+                    const walletData = await createBiometricWallet();
                     
-                    // Send to backend for user creation
-                    showStatus('🔐', 'Creating Account...', 
-                        'Creating your author account in the repository...', false);
+                    // Step 2: Register with backend
+                    await registerWithBackend(walletData);
                     
-                    const response = await fetch('/bin/blockchain-aem/register-user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            address: walletData,
-                            type: 'biometric',
-                            credentialId: localStorage.getItem('blockchain_aem_biometric_credential_id')
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Registration failed: ' + response.statusText);
-                    }
+                    // Step 3: Store locally
+                    localStorage.setItem('blockchain_aem_biometric_wallet', walletData.address);
+                    localStorage.setItem('blockchain_aem_biometric_credential_id', walletData.credentialId);
+                    const pubKeyBase64 = btoa(String.fromCharCode.apply(null, walletData.pubKey));
+                    localStorage.setItem('blockchain_aem_biometric_pubkey', pubKeyBase64);
                     
                     // Success!
-                    showStatus('✅', 'Account Created!', 
-                        'Your biometric wallet is registered.\n\n' +
-                        'You can now sign in with your biometric.\n\n' +
-                        'Redirecting to login page...', false);
+                    showStatus('✅', 'Registration Successful!', 
+                        'Wallet: ' + walletData.address.substring(0, 12) + '...\n\n' +
+                        'Your biometric credential is registered.\n' +
+                        'You can now sign in with Face ID/Touch ID.\n\n' +
+                        'Redirecting to login...', false);
                     
-                    setTimeout(function() {
-                        window.location.href = '/starter.html';
+                    setTimeout(() => {
+                        window.location.href = '/content/blockchain-aem/dashboard.html';
                     }, 3000);
                     
                 } catch (error) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span style="font-size: 24px;">👆</span> Register with Biometric';
+                    biometricBtn.disabled = false;
+                    biometricBtn.innerHTML = '<span class="btn-icon">👆</span> Register with Biometric';
                     
                     if (error.name === 'NotAllowedError') {
                         showStatus('❌', 'Registration Cancelled', 
@@ -316,8 +642,79 @@ under the License.
                     }
                 }
             });
+            
+            // MetaMask Registration
+            metamaskBtn.addEventListener('click', async function() {
+                try {
+                    if (!window.ethereum) {
+                        showStatus('🦊', 'MetaMask Not Found', 
+                            'Please install the MetaMask browser extension.', true);
+                        return;
+                    }
+                    
+                    metamaskBtn.disabled = true;
+                    metamaskBtn.innerHTML = '<span class="btn-icon">⏳</span> Connecting...';
+                    
+                    showStatus('🦊', 'Opening MetaMask...', 
+                        'Please approve the connection in MetaMask.');
+                    
+                    const accounts = await window.ethereum.request({ 
+                        method: 'eth_requestAccounts' 
+                    });
+                    const address = accounts[0];
+                    
+                    showStatus('✍️', 'Sign Message', 
+                        'Please sign the registration message in MetaMask.');
+                    
+                    const message = 'Register with Blockchain AEM\nWallet: ' + address + '\nTimestamp: ' + Date.now();
+                    const signature = await window.ethereum.request({
+                        method: 'personal_sign',
+                        params: [message, address]
+                    });
+                    
+                    showStatus('🔐', 'Creating Account...', 
+                        'Registering your wallet...');
+                    
+                    const response = await fetch('/bin/blockchain-aem/register-user', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            address: address, 
+                            signature: signature,
+                            message: message,
+                            type: 'metamask'
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Registration failed: ' + response.statusText);
+                    }
+                    
+                    localStorage.setItem('blockchain_aem_wallet', address);
+                    
+                    showStatus('✅', 'Registration Successful!', 
+                        'Wallet: ' + address.substring(0, 12) + '...\n\n' +
+                        'You can now sign in with MetaMask.\n\n' +
+                        'Redirecting to login...', false);
+                    
+                    setTimeout(() => {
+                        window.location.href = '/content/blockchain-aem/dashboard.html';
+                    }, 3000);
+                    
+                } catch (error) {
+                    metamaskBtn.disabled = false;
+                    metamaskBtn.innerHTML = '<span class="btn-icon">🦊</span> Register with MetaMask';
+                    
+                    if (error.code === 4001) {
+                        showStatus('❌', 'Cancelled', 
+                            'You rejected the request in MetaMask.', true);
+                    } else {
+                        showStatus('❌', 'Registration Failed', 
+                            'Error: ' + error.message, true);
+                    }
+                }
+            });
         });
     </script>
 </body>
 </html>
-

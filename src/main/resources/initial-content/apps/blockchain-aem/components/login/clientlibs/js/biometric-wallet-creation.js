@@ -227,7 +227,12 @@ async function setupBiometricWallet(statusCallback) {
     }
 }
 
-// Export for use in other modules
+// Export for use in browser (attach to window)
+window.createBiometricWallet = createBiometricWallet;
+window.registerBiometricWallet = registerBiometricWallet;
+window.setupBiometricWallet = setupBiometricWallet;
+
+// Export for use in Node.js modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         createBiometricWallet,

@@ -1,6 +1,0 @@
-{
-    "jcr:primaryType": "nt:unstructured",
-    "jcr:title": "Oak Chain Publisher",
-    "sling:resourceType": "blockchain-aem/components/blockchain-aem-publisher"
-}
-

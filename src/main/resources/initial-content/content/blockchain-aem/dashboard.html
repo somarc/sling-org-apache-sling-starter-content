@@ -22,6 +22,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Blockchain AEM</title>
+    <!-- IMMEDIATE auth check - runs before page renders -->
+    <script>
+    (function() {
+        // Quick cookie check - if no auth cookie AND no localStorage wallet, redirect immediately
+        const hasAuthCookie = document.cookie.split(';').some(c => c.trim().startsWith('blockchain.aem.auth='));
+        const hasLocalWallet = localStorage.getItem('blockchain_aem_wallet') || 
+                               localStorage.getItem('blockchain_aem_biometric_wallet');
+        
+        if (!hasAuthCookie && !hasLocalWallet) {
+            // Do a sync check for Sling session (can't do async here)
+            // Redirect to starter - the full check will happen there or on DOMContentLoaded
+            console.log('🔒 No auth cookie/wallet - checking Sling session...');
+            
+            // Use XMLHttpRequest for sync check (not ideal but works for auth gating)
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/system/sling/info.sessionInfo.json', false); // sync
+            try {
+                xhr.send();
+                if (xhr.status === 200) {
+                    var info = JSON.parse(xhr.responseText);
+                    if (info.userID && info.userID !== 'anonymous') {
+                        console.log('✅ Sling session found:', info.userID);
+                        return; // Allow page to load
+                    }
+                }
+            } catch (e) {
+                console.log('Session check failed:', e);
+            }
+            
+            // No valid auth - redirect
+            console.log('🔒 Not authenticated - redirecting to login');
+            window.location.replace('/starter.html');
+        }
+    })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -119,7 +154,9 @@
         .brand-icon svg {
             width: 18px;
             height: 18px;
-            fill: var(--bg-deep);
+            stroke: var(--bg-deep);
+            stroke-width: 2;
+            fill: none;
         }
         
         .brand-text {
@@ -697,9 +734,41 @@
     </style>
 </head>
 <body>
-    <!-- Top Navigation (injected by shared component) -->
-    <div id="blockchain-aem-header"></div>
-    <script src="/apps/blockchain-aem/components/header.js"></script>
+    <!-- Top Navigation -->
+    <nav class="top-bar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/content/blockchain-aem/dashboard.html" class="active">Dashboard</a>
+            <a href="/content/blockchain-aem/editor.html">Editor</a>
+            <a href="/content/blockchain-aem/viewer.html">Viewer</a>
+            <a href="/content/blockchain-aem/agentic-chat.html">AI Chat</a>
+        </div>
+        
+        <div class="user-section">
+            <div class="status-indicators">
+                <div class="status-dot" id="validator-status" title="Validator connection">
+                    <span class="dot"></span>
+                    <span>Validator</span>
+                </div>
+                <div class="status-dot" id="ipfs-status" title="IPFS connection">
+                    <span class="dot"></span>
+                    <svg class="ipfs-logo" width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M255.9 33L53 127.4v257.2L255.9 479l202.9-94.4V127.4L255.9 33zm0 30.2l165.4 77-165.4 77-165.4-77 165.4-77zM75.5 160l165.4 77v179.4L75.5 339.3V160zm361 0v179.3l-165.4 77.1V239l165.4-79z"/>
+                    </svg>
+                </div>
+            </div>
+            <span class="mode-badge" id="mode-badge">MOCK</span>
+            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
+        </div>
+    </nav>
     
     <!-- Main Content -->
     <div class="container">
@@ -1076,6 +1145,11 @@
         // Sign out
         document.getElementById('user-avatar').addEventListener('click', () => {
             if (confirm('Sign out of Blockchain AEM?')) {
+                // Clear localStorage auth data
+                localStorage.removeItem('blockchain_aem_wallet');
+                localStorage.removeItem('blockchain_aem_biometric_wallet');
+                localStorage.removeItem('blockchain_aem_biometric_credential_id');
+                localStorage.removeItem('blockchain_aem_biometric_pubkey');
                 window.location.href = '/system/sling/logout?resource=/starter.html';
             }
         });
@@ -1113,8 +1187,43 @@
             }
         }
         
+        // Auth check - redirect to login if not authenticated
+        async function checkAuth() {
+            // Check 1: Our custom auth (MetaMask/Biometric)
+            const authCookie = document.cookie.split(';').find(c => c.trim().startsWith('blockchain.aem.auth='));
+            const storedWallet = localStorage.getItem('blockchain_aem_wallet') || 
+                                 localStorage.getItem('blockchain_aem_biometric_wallet');
+            
+            if (authCookie || storedWallet) {
+                return true; // Custom auth valid
+            }
+            
+            // Check 2: Sling form auth - check session info
+            try {
+                const response = await fetch('/system/sling/info.sessionInfo.json', {
+                    credentials: 'same-origin'
+                });
+                if (response.ok) {
+                    const sessionInfo = await response.json();
+                    if (sessionInfo.userID && sessionInfo.userID !== 'anonymous') {
+                        console.log('✅ Sling session authenticated as:', sessionInfo.userID);
+                        return true; // Sling auth valid
+                    }
+                }
+            } catch (error) {
+                console.log('Could not check Sling session:', error);
+            }
+            
+            console.log('🔒 Not authenticated - redirecting to login');
+            window.location.href = '/starter.html';
+            return false;
+        }
+        
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication first
+            if (!await checkAuth()) return;
+            
             loadUserInfo();
             loadAuthorWallet();
             loadBlockchainMode();

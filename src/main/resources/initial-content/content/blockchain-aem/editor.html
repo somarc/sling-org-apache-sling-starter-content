@@ -22,6 +22,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content Editor | Blockchain AEM</title>
+    <!-- IMMEDIATE auth check - runs before page renders -->
+    <script>
+    (function() {
+        const hasAuthCookie = document.cookie.split(';').some(c => c.trim().startsWith('blockchain.aem.auth='));
+        const hasLocalWallet = localStorage.getItem('blockchain_aem_wallet') || 
+                               localStorage.getItem('blockchain_aem_biometric_wallet');
+        
+        if (!hasAuthCookie && !hasLocalWallet) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/system/sling/info.sessionInfo.json', false);
+            try {
+                xhr.send();
+                if (xhr.status === 200) {
+                    var info = JSON.parse(xhr.responseText);
+                    if (info.userID && info.userID !== 'anonymous') return;
+                }
+            } catch (e) {}
+            window.location.replace('/starter.html');
+        }
+    })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -120,7 +141,9 @@
         .brand-icon svg {
             width: 18px;
             height: 18px;
-            fill: var(--bg-deep);
+            stroke: var(--bg-deep);
+            stroke-width: 2;
+            fill: none;
         }
         
         .brand-text {
@@ -659,9 +682,41 @@
     </style>
 </head>
 <body>
-    <!-- Top Navigation (injected by shared component) -->
-    <div id="blockchain-aem-header"></div>
-    <script src="/apps/blockchain-aem/components/header.js"></script>
+    <!-- Top Navigation -->
+    <nav class="top-bar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
+            <a href="/content/blockchain-aem/editor.html" class="active">Editor</a>
+            <a href="/content/blockchain-aem/viewer.html">Viewer</a>
+            <a href="/content/blockchain-aem/agentic-chat.html">AI Chat</a>
+        </div>
+        
+        <div class="user-section">
+            <div class="status-indicators">
+                <div class="status-dot" id="validator-status" title="Validator connection">
+                    <span class="dot"></span>
+                    <span>Validator</span>
+                </div>
+                <div class="status-dot" id="ipfs-status" title="IPFS connection">
+                    <span class="dot"></span>
+                    <svg class="ipfs-logo" width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M255.9 33L53 127.4v257.2L255.9 479l202.9-94.4V127.4L255.9 33zm0 30.2l165.4 77-165.4 77-165.4-77 165.4-77zM75.5 160l165.4 77v179.4L75.5 339.3V160zm361 0v179.3l-165.4 77.1V239l165.4-79z"/>
+                    </svg>
+                </div>
+            </div>
+            <span class="mode-badge" id="mode-badge">MOCK</span>
+            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
+        </div>
+    </nav>
     
     <!-- Main Content -->
     <div class="main-content">
@@ -797,7 +852,7 @@
                     <label class="form-label">Publication Tier</label>
                     <div class="tier-grid">
                         <label class="tier-option">
-                            <input type="radio" name="tier" value="0" checked>
+                            <input type="radio" name="tier" value="standard" checked>
                             <div class="tier-card">
                                 <div class="tier-name">Standard</div>
                                 <div class="tier-time">≤ 13 minutes</div>
@@ -806,7 +861,7 @@
                             </div>
                         </label>
                         <label class="tier-option">
-                            <input type="radio" name="tier" value="1">
+                            <input type="radio" name="tier" value="express">
                             <div class="tier-card">
                                 <div class="tier-name">Express</div>
                                 <div class="tier-time">≤ 6.5 minutes</div>
@@ -815,7 +870,7 @@
                             </div>
                         </label>
                         <label class="tier-option">
-                            <input type="radio" name="tier" value="2">
+                            <input type="radio" name="tier" value="priority">
                             <div class="tier-card">
                                 <div class="tier-name">Priority</div>
                                 <div class="tier-time">≤ 45 seconds</div>
@@ -1230,6 +1285,71 @@
                 const messageString = messageParts.join('|');
                 
                 // ============================================================
+                // CONNECT METAMASK AND SIGN
+                // Three-address model (ADR 014):
+                // - Content Owner: Sling Author wallet (where content is stored)
+                // - Payer: MetaMask user (signs to authorize payment)
+                // - Validators: Receive payment, replicate content
+                // ============================================================
+                
+                // First, ensure MetaMask is available
+                if (!window.ethereum) {
+                    showStatus('error', 'MetaMask Required', 'Please install MetaMask to sign publications');
+                    return;
+                }
+                
+                // Request MetaMask connection (get payer account)
+                showStatus('info', 'Connecting to MetaMask...', 'Please approve the connection');
+                let payerAccounts;
+                try {
+                    payerAccounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                } catch (connError) {
+                    if (connError.code === 4001) {
+                        showStatus('error', 'Connection rejected', 'Please connect MetaMask to publish');
+                        return;
+                    }
+                    throw connError;
+                }
+                
+                const payerWallet = payerAccounts[0];
+                showStatus('info', 'Requesting signature...', `Payer: ${payerWallet.substring(0, 10)}...`);
+                
+                // Create message to sign (includes content owner for transparency)
+                const signatureMessage = [
+                    'Blockchain AEM Content Publication',
+                    '',
+                    `Content Owner: ${wallet}`,
+                    `Payer: ${payerWallet}`,
+                    `Content: ${messageString.substring(0, 100)}${messageString.length > 100 ? '...' : ''}`,
+                    `Tier: ${tier}`,
+                    `Timestamp: ${Date.now()}`,
+                    '',
+                    'Sign to authorize this publication.'
+                ].join('\n');
+                
+                let signature;
+                try {
+                    // Request signature from MetaMask (sign with PAYER wallet)
+                    signature = await window.ethereum.request({
+                        method: 'personal_sign',
+                        params: [signatureMessage, payerWallet]
+                    });
+                } catch (signError) {
+                    if (signError.code === 4001) {
+                        showStatus('error', 'Signature rejected', 'You must sign the message to publish');
+                        return;
+                    }
+                    throw signError;
+                }
+                
+                console.log('✅ MetaMask signature obtained:', signature.substring(0, 20) + '...');
+                
+                // Generate mock tx hash (in production, this comes from smart contract payment)
+                // For Sepolia: ValidatorPaymentV3_1 contract will return real tx hash
+                const mockTxHash = '0x' + Array.from(crypto.getRandomValues(new Uint8Array(32)))
+                    .map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                // ============================================================
                 // MULTIPART FORM DATA (preferred for binary uploads)
                 // No base64 encoding needed - binary goes directly!
                 // Future: ADR 016 (client IPFS), ADR 020 (lazy upload)
@@ -1238,8 +1358,8 @@
                 formData.append('walletAddress', wallet);
                 formData.append('message', messageString);
                 formData.append('contentType', organization || 'page');
-                formData.append('signature', '0xmock_' + Date.now());
-                formData.append('ethereumTxHash', '0xmock_tx_' + Date.now());
+                formData.append('signature', signature);  // Real MetaMask signature!
+                formData.append('ethereumTxHash', mockTxHash);
                 formData.append('paymentTier', tier);
                 
                 // Add binary file directly (no base64 encoding!)
@@ -1316,12 +1436,52 @@
         document.getElementById('user-avatar').addEventListener('click', () => {
             // Show logout confirmation
             if (confirm('Sign out of Blockchain AEM?')) {
+                // Clear localStorage auth data
+                localStorage.removeItem('blockchain_aem_wallet');
+                localStorage.removeItem('blockchain_aem_biometric_wallet');
+                localStorage.removeItem('blockchain_aem_biometric_credential_id');
+                localStorage.removeItem('blockchain_aem_biometric_pubkey');
                 window.location.href = '/system/sling/logout?resource=/starter.html';
             }
         });
         
+        // Auth check - redirect to login if not authenticated
+        async function checkAuth() {
+            // Check 1: Our custom auth (MetaMask/Biometric)
+            const authCookie = document.cookie.split(';').find(c => c.trim().startsWith('blockchain.aem.auth='));
+            const storedWallet = localStorage.getItem('blockchain_aem_wallet') || 
+                                 localStorage.getItem('blockchain_aem_biometric_wallet');
+            
+            if (authCookie || storedWallet) {
+                return true; // Custom auth valid
+            }
+            
+            // Check 2: Sling form auth - check session info
+            try {
+                const response = await fetch('/system/sling/info.sessionInfo.json', {
+                    credentials: 'same-origin'
+                });
+                if (response.ok) {
+                    const sessionInfo = await response.json();
+                    if (sessionInfo.userID && sessionInfo.userID !== 'anonymous') {
+                        console.log('✅ Sling session authenticated as:', sessionInfo.userID);
+                        return true; // Sling auth valid
+                    }
+                }
+            } catch (error) {
+                console.log('Could not check Sling session:', error);
+            }
+            
+            console.log('🔒 Not authenticated - redirecting to login');
+            window.location.href = '/starter.html';
+            return false;
+        }
+        
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication first
+            if (!await checkAuth()) return;
+            
             // Load authenticated user info (for avatar)
             await loadUserInfo();
             

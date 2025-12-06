@@ -22,6 +22,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oak-Chain Viewer | Blockchain AEM</title>
+    <!-- IMMEDIATE auth check - runs before page renders -->
+    <script>
+    (function() {
+        const hasAuthCookie = document.cookie.split(';').some(c => c.trim().startsWith('blockchain.aem.auth='));
+        const hasLocalWallet = localStorage.getItem('blockchain_aem_wallet') || 
+                               localStorage.getItem('blockchain_aem_biometric_wallet');
+        
+        if (!hasAuthCookie && !hasLocalWallet) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/system/sling/info.sessionInfo.json', false);
+            try {
+                xhr.send();
+                if (xhr.status === 200) {
+                    var info = JSON.parse(xhr.responseText);
+                    if (info.userID && info.userID !== 'anonymous') return;
+                }
+            } catch (e) {}
+            window.location.replace('/starter.html');
+        }
+    })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -113,7 +134,9 @@
         .brand-icon svg {
             width: 18px;
             height: 18px;
-            fill: var(--bg-deep);
+            stroke: var(--bg-deep);
+            stroke-width: 2;
+            fill: none;
         }
         
         .brand-text {
@@ -1180,9 +1203,41 @@
     </style>
 </head>
 <body>
-    <!-- Top Navigation (injected by shared component) -->
-    <div id="blockchain-aem-header"></div>
-    <script src="/apps/blockchain-aem/components/header.js"></script>
+    <!-- Top Navigation Bar -->
+    <nav class="top-bar">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
+            <div class="brand-text">Blockchain <span>AEM</span></div>
+        </div>
+        
+        <div class="nav-links">
+            <a href="/content/blockchain-aem/dashboard.html">Dashboard</a>
+            <a href="/content/blockchain-aem/editor.html">Editor</a>
+            <a href="/content/blockchain-aem/viewer.html" class="active">Viewer</a>
+            <a href="/content/blockchain-aem/agentic-chat.html">AI Chat</a>
+        </div>
+        
+        <div class="user-section">
+            <div class="status-indicators">
+                <div class="status-dot" id="validator-status" title="Validator connection">
+                    <span class="dot"></span>
+                    <span>Validator</span>
+                </div>
+                <div class="status-dot" id="ipfs-status" title="IPFS connection">
+                    <span class="dot"></span>
+                    <svg class="ipfs-logo" width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M255.9 33L53 127.4v257.2L255.9 479l202.9-94.4V127.4L255.9 33zm0 30.2l165.4 77-165.4 77-165.4-77 165.4-77zM75.5 160l165.4 77v179.4L75.5 339.3V160zm361 0v179.3l-165.4 77.1V239l165.4-79z"/>
+                    </svg>
+                </div>
+            </div>
+            <span class="mode-badge" id="mode-badge">MOCK</span>
+            <div class="user-avatar" id="user-avatar" title="Content Owner Wallet">?</div>
+        </div>
+    </nav>
     
     <!-- Main Content Area -->
     <div class="main-container">
@@ -1508,6 +1563,9 @@
         // ============================================
         
         async function loadAuthorWallet() {
+            // Try multiple sources for wallet
+            
+            // 1. Try Sling servlet first
             try {
                 const response = await fetch('/bin/blockchain/content-owner', {
                     credentials: 'same-origin'
@@ -1517,13 +1575,44 @@
                     if (data.address && data.address.startsWith('0x')) {
                         authorWallet = data.address.toLowerCase();
                         authorShard = authorWallet.substring(2, 4);
-                        console.log(`✅ Author wallet loaded: ${authorWallet} (shard: ${authorShard})`);
+                        console.log(`✅ Author wallet loaded from Sling: ${authorWallet} (shard: ${authorShard})`);
                         return true;
                     }
                 }
             } catch (error) {
-                console.log('Could not load author wallet:', error);
+                console.log('Sling servlet not available, trying validator...');
             }
+            
+            // 2. Try validator API as fallback
+            try {
+                const response = await fetch(`${VALIDATOR_URL}/v1/peers`);
+                if (response.ok) {
+                    const peers = await response.json();
+                    // Look for a Sling peer with our origin
+                    const localPeer = peers.find(p => 
+                        p.url && (p.url.includes('localhost:4502') || p.url.includes('localhost:8080'))
+                    );
+                    if (localPeer && localPeer.wallet && localPeer.wallet.startsWith('0x')) {
+                        authorWallet = localPeer.wallet.toLowerCase();
+                        authorShard = authorWallet.substring(2, 4);
+                        console.log(`✅ Author wallet loaded from validator peers: ${authorWallet} (shard: ${authorShard})`);
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log('Validator peers API not available');
+            }
+            
+            // 3. Detect from current path if viewing wallet-scoped content
+            const walletMatch = currentPath.match(/\/oak-chain\/[a-f0-9]{2}\/[a-f0-9]{2}\/[a-f0-9]{2}\/(0x[a-f0-9]{40})/i);
+            if (walletMatch) {
+                authorWallet = walletMatch[1].toLowerCase();
+                authorShard = authorWallet.substring(2, 4);
+                console.log(`✅ Author wallet detected from path: ${authorWallet} (shard: ${authorShard})`);
+                return true;
+            }
+            
+            console.log('⚠️ Could not determine author wallet - MY SHARD badge will not show');
             return false;
         }
         
@@ -1560,8 +1649,61 @@
             }
             
             treeData[ROOT_PATH] = rootData;
+            
+            // If wallet wasn't detected earlier, try to find it from tree structure
+            if (!authorWallet && rootData.children) {
+                await detectWalletFromTreeStructure(rootData);
+            }
+            
             await renderTree();
             refreshBtn.classList.remove('loading');
+        }
+        
+        // Detect wallet by exploring the tree structure
+        async function detectWalletFromTreeStructure(rootData) {
+            if (!rootData.children) return;
+            
+            // Explore each shard to find wallet addresses
+            for (const shard1 of rootData.children) {
+                if (shard1 === '00' || shard1 === 'genesis') continue; // Skip genesis
+                
+                try {
+                    const shard1Path = `${ROOT_PATH}/${shard1}`;
+                    const shard1Data = await fetchNode(shard1Path);
+                    if (!shard1Data || !shard1Data.children) continue;
+                    treeData[shard1Path] = shard1Data;
+                    
+                    for (const shard2 of shard1Data.children) {
+                        const shard2Path = `${shard1Path}/${shard2}`;
+                        const shard2Data = await fetchNode(shard2Path);
+                        if (!shard2Data || !shard2Data.children) continue;
+                        treeData[shard2Path] = shard2Data;
+                        
+                        for (const shard3 of shard2Data.children) {
+                            const shard3Path = `${shard2Path}/${shard3}`;
+                            const shard3Data = await fetchNode(shard3Path);
+                            if (!shard3Data || !shard3Data.children) continue;
+                            treeData[shard3Path] = shard3Data;
+                            
+                            // Look for wallet addresses
+                            for (const child of shard3Data.children) {
+                                if (child.match(/^0x[a-f0-9]{40}$/i)) {
+                                    authorWallet = child.toLowerCase();
+                                    authorShard = authorWallet.substring(2, 4);
+                                    console.log(`✅ Author wallet detected from tree: ${authorWallet} (shard: ${authorShard})`);
+                                    // Expand nodes to this path
+                                    expandedNodes.add(shard1Path);
+                                    expandedNodes.add(shard2Path);
+                                    expandedNodes.add(shard3Path);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log(`Error exploring shard ${shard1}:`, e);
+                }
+            }
         }
         
         async function renderTree() {
@@ -1702,11 +1844,11 @@
                 // Check if this is the author's shard
                 const isAuthorShard = (parentPath === ROOT_PATH && childName === authorShard);
                 
-                // Check if this is genesis content
+                // Check if this is the actual genesis node (not parent paths)
+                // Only mark as genesis if the node NAME is "genesis" or it's the 00 shard at root
                 const isGenesis = (
-                    childName.toLowerCase() === 'genesis' || 
-                    childName.startsWith('00') ||  // Genesis shard (00)
-                    childPath.includes('/genesis/')
+                    childName.toLowerCase() === 'genesis' ||
+                    (parentPath === ROOT_PATH && childName === '00')  // Only the 00 shard at oak-chain root
                 );
                 
                 const childNode = await renderTreeNode(childPath, childName, depth, isAuthorShard, isGenesis);
@@ -1758,10 +1900,18 @@
             const mimeType = properties['jcr:mimeType'];
             const binarySize = extractBinarySize(binaryValue);
             
-            // Try to extract IPFS CID directly first
-            let ipfsCid = extractIpfsCid(binaryValue);
+            // Priority order for IPFS CID:
+            // 1. Check 'ipfsCid' property (persisted on node - survives restarts!)
+            // 2. Extract from binaryValue (ipfs:// URI format)
+            // 3. Lookup via CID mapping service (in-memory cache)
+            let ipfsCid = properties['ipfsCid'] || extractIpfsCid(binaryValue);
             let oakBlobId = null;
             let cidLookupStatus = null;
+            
+            if (ipfsCid) {
+                console.log(`✅ Found IPFS CID on node property: ${ipfsCid}`);
+                cidLookupStatus = 'property';
+            }
             
             // If no direct IPFS CID, try Oak blob ID lookup
             if (!ipfsCid && binaryValue) {
@@ -1980,9 +2130,9 @@
                 
             } else if (oakBlobId) {
                 // Oak blob ID but no IPFS CID mapping found
-                // Try to serve via validator's binary endpoint
-                const validatorBinaryUrl = `${VALIDATOR_URL}/api/binary/${oakBlobId}`;
-                previewUrl = validatorBinaryUrl;
+                // Try to serve via validator's blob endpoint
+                const validatorBlobUrl = `${VALIDATOR_URL}/api/blob/${oakBlobId}`;
+                previewUrl = validatorBlobUrl;
                 
                 storageInfo = `
                     <div class="storage-badge oak">
@@ -2045,7 +2195,7 @@
             // Generate preview HTML based on mime type
             if (previewUrl && mimeType) {
                 if (mimeType.startsWith('image/')) {
-                    const downloadBtn = oakBlobId ? `<a href=\\'${VALIDATOR_URL}/api/binary/${oakBlobId}\\' target=\\'_blank\\' style=\\'display:inline-block;margin-top:16px;padding:8px 16px;background:var(--accent-primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;\\'>📥 Download via Validator</a>` : '';
+                    const downloadBtn = oakBlobId ? `<a href=\\'${VALIDATOR_URL}/api/blob/${oakBlobId}\\' target=\\'_blank\\' style=\\'display:inline-block;margin-top:16px;padding:8px 16px;background:var(--accent-primary);color:white;border-radius:6px;text-decoration:none;font-size:13px;\\'>📥 Download via Validator</a>` : '';
                     
                     // Smart fallback: Try IPFS first, then Oak BlobStore
                     const blobStoreFallback = oakBlobId ? `${VALIDATOR_URL}/api/blob/${oakBlobId}` : '';
@@ -2331,10 +2481,48 @@
         }
         
         // ============================================
+        // Auth Check
+        // ============================================
+        
+        async function checkAuth() {
+            // Check 1: Our custom auth (MetaMask/Biometric)
+            const authCookie = document.cookie.split(';').find(c => c.trim().startsWith('blockchain.aem.auth='));
+            const storedWallet = localStorage.getItem('blockchain_aem_wallet') || 
+                                 localStorage.getItem('blockchain_aem_biometric_wallet');
+            
+            if (authCookie || storedWallet) {
+                return true; // Custom auth valid
+            }
+            
+            // Check 2: Sling form auth - check session info
+            try {
+                const response = await fetch('/system/sling/info.sessionInfo.json', {
+                    credentials: 'same-origin'
+                });
+                if (response.ok) {
+                    const sessionInfo = await response.json();
+                    if (sessionInfo.userID && sessionInfo.userID !== 'anonymous') {
+                        console.log('✅ Sling session authenticated as:', sessionInfo.userID);
+                        return true; // Sling auth valid
+                    }
+                }
+            } catch (error) {
+                console.log('Could not check Sling session:', error);
+            }
+            
+            console.log('🔒 Not authenticated - redirecting to login');
+            window.location.href = '/starter.html';
+            return false;
+        }
+        
+        // ============================================
         // Initialization
         // ============================================
         
         document.addEventListener('DOMContentLoaded', async () => {
+            // Check authentication first
+            if (!await checkAuth()) return;
+            
             // Detect blockchain mode (mock uses local IPFS, sepolia/mainnet uses public IPFS)
             await detectBlockchainMode();
             
@@ -2360,6 +2548,11 @@
             // User avatar click - sign out
             document.getElementById('user-avatar').addEventListener('click', () => {
                 if (confirm('Sign out of Blockchain AEM?')) {
+                    // Clear localStorage auth data
+                    localStorage.removeItem('blockchain_aem_wallet');
+                    localStorage.removeItem('blockchain_aem_biometric_wallet');
+                    localStorage.removeItem('blockchain_aem_biometric_credential_id');
+                    localStorage.removeItem('blockchain_aem_biometric_pubkey');
                     window.location.href = '/system/sling/logout?resource=/starter.html';
                 }
             });
