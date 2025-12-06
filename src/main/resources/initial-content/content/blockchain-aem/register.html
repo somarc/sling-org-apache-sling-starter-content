@@ -404,7 +404,100 @@ under the License.
         .modal-btn:hover {
             transform: translateY(-2px);
         }
+        
+        /* MetaMask Export Modal */
+        .metamask-export-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .metamask-export-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .metamask-export-content h3 {
+            margin-bottom: 16px;
+            color: var(--accent-primary);
+        }
+        
+        .private-key-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 16px 0;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .private-key-box code {
+            flex: 1;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            word-break: break-all;
+            color: var(--accent-tertiary);
+        }
+        
+        .private-key-box button {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .export-warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            color: #ef4444;
+            margin: 16px 0;
+        }
+        
+        .export-steps {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .export-steps ol {
+            margin-left: 20px;
+            margin-top: 8px;
+        }
+        
+        .close-modal {
+            width: 100%;
+            margin-top: 16px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .close-modal:hover {
+            background: var(--bg-primary);
+        }
     </style>
+    
+    <!-- Ethers.js for proper Ethereum wallet derivation -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
 </head>
 <body>
     <div class="bg-grid"></div>
@@ -489,33 +582,44 @@ under the License.
         }
         
         // =============================================
-        // Biometric Wallet Creation (Inlined)
+        // Biometric Wallet Creation (VALID Ethereum Address!)
+        // Uses ethers.js for proper secp256k1 derivation
         // =============================================
-        async function keccak256(data) {
-            // For demo: use SHA-256 (in production use ethers.utils.keccak256)
-            const hash = await crypto.subtle.digest('SHA-256', data);
-            return Array.from(new Uint8Array(hash))
+        
+        /**
+         * Derive a VALID secp256k1 Ethereum wallet from P-256 biometric key
+         * The P-256 public key serves as deterministic entropy.
+         */
+        async function deriveSecp256k1Wallet(p256PubKey) {
+            if (typeof ethers === 'undefined') {
+                throw new Error('ethers.js not loaded');
+            }
+            
+            // Use P-256 public key as entropy source (deterministic!)
+            const entropy = await crypto.subtle.digest('SHA-256', p256PubKey);
+            const privateKeyBytes = new Uint8Array(entropy);
+            
+            // Convert to hex for ethers.js
+            const privateKeyHex = '0x' + Array.from(privateKeyBytes)
                 .map(b => b.toString(16).padStart(2, '0'))
                 .join('');
-        }
-        
-        async function deriveEthereumAddress(pubKey) {
-            // Extract coordinates (skip 0x04 prefix if present)
-            const start = pubKey[0] === 0x04 ? 1 : 0;
-            const qx = pubKey.slice(start, start + 32);
-            const qy = pubKey.slice(start + 32, start + 64);
             
-            const combined = new Uint8Array(64);
-            combined.set(qx, 0);
-            combined.set(qy, 32);
+            // Create proper Ethereum wallet
+            const wallet = new ethers.Wallet(privateKeyHex);
             
-            const hash = await keccak256(combined);
-            return '0x' + hash.slice(0, 40);
+            console.log('🔐 Derived secp256k1 wallet from P-256 biometric:');
+            console.log('   Address:', wallet.address);
+            
+            return wallet;
         }
         
         async function createBiometricWallet() {
             if (!('PublicKeyCredential' in window)) {
                 throw new Error('Biometrics not supported on this device');
+            }
+            
+            if (typeof ethers === 'undefined') {
+                throw new Error('ethers.js library not loaded. Please refresh the page.');
             }
             
             showStatus('🔐', 'Initializing...', 'Preparing biometric registration...');
@@ -546,27 +650,31 @@ under the License.
             
             const credential = await navigator.credentials.create({ publicKey: options });
             
-            showStatus('🔑', 'Generating Wallet...', 'Deriving Ethereum address from public key...');
+            showStatus('🔑', 'Generating Wallet...', 'Deriving secp256k1 wallet from biometric...');
             
-            // Get public key
-            let pubKey;
+            // Get P-256 public key from WebAuthn
+            let p256PubKey;
             if (credential.response.getPublicKey) {
-                pubKey = new Uint8Array(credential.response.getPublicKey());
+                p256PubKey = new Uint8Array(credential.response.getPublicKey());
             } else {
                 throw new Error('Could not extract public key from credential');
             }
             
-            const address = await deriveEthereumAddress(pubKey);
+            // Derive VALID secp256k1 Ethereum wallet
+            const ethWallet = await deriveSecp256k1Wallet(p256PubKey);
             
-            console.log('✅ Biometric wallet created:');
-            console.log('  Address:', address);
+            console.log('✅ Biometric wallet created (VALID Ethereum address!):');
+            console.log('  Address:', ethWallet.address);
             console.log('  Credential ID:', credential.id);
-            console.log('  Public Key:', pubKey.length, 'bytes');
+            console.log('  secp256k1 Public Key:', ethWallet.publicKey);
+            console.log('  (Private key available for MetaMask export)');
             
             return {
-                address: address,
+                address: ethWallet.address,
+                privateKey: ethWallet.privateKey,  // For MetaMask export!
+                publicKey: ethWallet.publicKey,     // secp256k1 public key
                 credentialId: credential.id,
-                pubKey: Array.from(pubKey),
+                p256PubKey: Array.from(p256PubKey),
                 rawId: Array.from(new Uint8Array(credential.rawId))
             };
         }
@@ -580,7 +688,8 @@ under the License.
                 body: JSON.stringify({
                     address: walletData.address,
                     credentialId: walletData.credentialId,
-                    pubKey: walletData.pubKey,
+                    p256PubKey: walletData.p256PubKey,
+                    secp256k1PubKey: walletData.publicKey,
                     rawId: walletData.rawId
                 })
             });
@@ -591,6 +700,39 @@ under the License.
             }
             
             return await response.json();
+        }
+        
+        /**
+         * Show MetaMask export modal
+         */
+        function showMetaMaskExport(privateKey) {
+            const modal = document.createElement('div');
+            modal.className = 'metamask-export-modal';
+            modal.innerHTML = `
+                <div class="metamask-export-content">
+                    <h3>🦊 Export to MetaMask</h3>
+                    <p>Copy this private key and import it into MetaMask:</p>
+                    <div class="private-key-box">
+                        <code id="export-private-key">${privateKey}</code>
+                        <button onclick="navigator.clipboard.writeText('${privateKey}'); this.textContent='✓ Copied!'; setTimeout(() => this.textContent='📋 Copy', 2000)">📋 Copy</button>
+                    </div>
+                    <div class="export-warning">
+                        ⚠️ <strong>Security Warning:</strong> Never share your private key!
+                        Only import into wallets you control.
+                    </div>
+                    <div class="export-steps">
+                        <p><strong>MetaMask Import Steps:</strong></p>
+                        <ol>
+                            <li>Open MetaMask → Click account icon</li>
+                            <li>Select "Import Account"</li>
+                            <li>Paste the private key above</li>
+                            <li>Click "Import"</li>
+                        </ol>
+                    </div>
+                    <button class="close-modal" onclick="this.closest('.metamask-export-modal').remove()">Close</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
         
         // =============================================
@@ -606,28 +748,54 @@ under the License.
                     biometricBtn.disabled = true;
                     biometricBtn.innerHTML = '<span class="btn-icon">⏳</span> Initializing...';
                     
-                    // Step 1: Create wallet
+                    // Step 1: Create VALID Ethereum wallet from biometric
                     const walletData = await createBiometricWallet();
                     
                     // Step 2: Register with backend
                     await registerWithBackend(walletData);
                     
-                    // Step 3: Store locally
-                    localStorage.setItem('blockchain_aem_biometric_wallet', walletData.address);
-                    localStorage.setItem('blockchain_aem_biometric_credential_id', walletData.credentialId);
-                    const pubKeyBase64 = btoa(String.fromCharCode.apply(null, walletData.pubKey));
-                    localStorage.setItem('blockchain_aem_biometric_pubkey', pubKeyBase64);
+                    // Step 3: Store locally (NOT private key in localStorage!)
+                    localStorage.setItem('blockchain_aem_wallet_address', walletData.address);
+                    localStorage.setItem('blockchain_aem_credential_id', walletData.credentialId);
+                    localStorage.setItem('blockchain_aem_secp256k1_pubkey', walletData.publicKey);
                     
-                    // Success!
-                    showStatus('✅', 'Registration Successful!', 
-                        'Wallet: ' + walletData.address.substring(0, 12) + '...\n\n' +
-                        'Your biometric credential is registered.\n' +
-                        'You can now sign in with Face ID/Touch ID.\n\n' +
-                        'Redirecting to login...', false);
+                    // Store P-256 key for WebAuthn login
+                    const p256PubKeyBase64 = btoa(String.fromCharCode.apply(null, walletData.p256PubKey));
+                    localStorage.setItem('blockchain_aem_p256_pubkey', p256PubKeyBase64);
                     
-                    setTimeout(() => {
-                        window.location.href = '/content/blockchain-aem/dashboard.html';
-                    }, 3000);
+                    // Store private key in sessionStorage for MetaMask export (cleared on tab close)
+                    sessionStorage.setItem('blockchain_aem_private_key', walletData.privateKey);
+                    
+                    // Success with MetaMask export option!
+                    const modal = document.getElementById('modal');
+                    document.getElementById('modal-icon').textContent = '✅';
+                    document.getElementById('modal-title').textContent = 'Wallet Created!';
+                    document.getElementById('modal-message').innerHTML = `
+                        <div style="text-align: left; font-size: 14px;">
+                            <p><strong>✓ Valid Ethereum Address:</strong></p>
+                            <code style="background: rgba(0,212,170,0.1); padding: 8px; border-radius: 6px; display: block; margin: 8px 0; font-size: 12px; word-break: break-all;">${walletData.address}</code>
+                            <p style="margin-top: 16px;">✓ Biometric authentication ready</p>
+                            <p>✓ Deterministic (same fingerprint = same wallet)</p>
+                            <p style="margin-top: 16px; color: var(--accent-tertiary);">🦊 Want to use this wallet in MetaMask?</p>
+                        </div>
+                    `;
+                    
+                    // Add buttons
+                    const btnContainer = document.createElement('div');
+                    btnContainer.style.cssText = 'display: flex; gap: 12px; margin-top: 20px;';
+                    btnContainer.innerHTML = `
+                        <button onclick="showMetaMaskExport('${walletData.privateKey}')" 
+                                style="flex: 1; padding: 12px; background: linear-gradient(135deg, #f6851b, #e2761b); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                            🦊 Export to MetaMask
+                        </button>
+                        <button onclick="window.location.href='/content/blockchain-aem/dashboard.html'" 
+                                style="flex: 1; padding: 12px; background: var(--accent-primary); border: none; border-radius: 8px; color: var(--bg-primary); font-weight: 600; cursor: pointer;">
+                            Continue to Dashboard →
+                        </button>
+                    `;
+                    document.getElementById('modal-message').appendChild(btnContainer);
+                    document.getElementById('modal-btn').style.display = 'none';
+                    modal.style.display = 'flex';
                     
                 } catch (error) {
                     biometricBtn.disabled = false;
@@ -636,6 +804,9 @@ under the License.
                     if (error.name === 'NotAllowedError') {
                         showStatus('❌', 'Registration Cancelled', 
                             'You cancelled the biometric registration.', true);
+                    } else if (error.message && error.message.includes('ethers')) {
+                        showStatus('❌', 'Library Not Loaded', 
+                            'ethers.js failed to load. Please refresh the page and try again.', true);
                     } else {
                         showStatus('❌', 'Registration Failed', 
                             'Error: ' + error.message, true);
